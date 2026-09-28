@@ -1,0 +1,11 @@
+@model CreateRoleVM
+@{
+    ViewData["Title"] = "صلاحية جديدة";
+    ViewBag.TeamTab = "roles";
+}
+<partial name="Partial/_TeamTabs" />
+<h2>صلاحية جديدة</h2>
+<form asp-action="Create" method="post">
+    <div class="mb-3"><label asp-for="Name"></label><input asp-for="Name" class="form-control" /></div>
+    <button class="btn btn-gold" type="submit">حفظ</button>
+</form>

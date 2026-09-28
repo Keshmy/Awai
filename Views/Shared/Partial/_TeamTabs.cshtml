@@ -1,0 +1,14 @@
+@{
+    var tab = ViewBag.TeamTab as string ?? "users";
+}
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link @(tab == "users" ? "active" : "")" asp-controller="Users" asp-action="Index">المستخدمون والاعتماد</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(tab == "employees" ? "active" : "")" asp-controller="Employees" asp-action="Index">الموظفون</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(tab == "roles" ? "active" : "")" asp-controller="Roles" asp-action="Index">الصلاحيات</a>
+    </li>
+</ul>

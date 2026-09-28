@@ -1,0 +1,8 @@
+@model PageContent?
+@{
+    ViewData["Title"] ??= Model?.Title ?? "صفحة";
+}
+<div class="container py-5">
+    <h1 class="section-title">@Model?.Title</h1>
+    <div class="cms-body">@Model?.Body</div>
+</div>

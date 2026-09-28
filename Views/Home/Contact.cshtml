@@ -1,0 +1,57 @@
+@model ContactVM
+@{
+    ViewData["Title"] = "تواصل معنا";
+    var site = ViewBag.Site as SiteInfo;
+}
+<div class="container py-5">
+    <h1 class="section-title">تواصل معنا</h1>
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <p><i class="bi bi-telephone"></i> <a href="tel:@site?.Phone">@site?.Phone</a></p>
+            <p><i class="bi bi-telephone"></i> @site?.Phone2</p>
+            <p><i class="bi bi-envelope"></i> <a href="mailto:@site?.Email">@site?.Email</a></p>
+            @{
+                var contactMap = MapLink.ForAddress(site?.Address, site?.MapUrl);
+            }
+            <p>
+                <i class="bi bi-geo-alt"></i>
+                <a href="@contactMap" target="_blank" rel="noopener">@site?.Address</a>
+            </p>
+            @if (!string.IsNullOrEmpty(site?.MapEmbedUrl))
+            {
+                <iframe src="@site.MapEmbedUrl" width="100%" height="280" style="border:0" loading="lazy" allowfullscreen></iframe>
+            }
+            else
+            {
+                <a class="btn btn-sm btn-gold" href="@contactMap" target="_blank" rel="noopener">فتح في خرائط Google</a>
+            }
+        </div>
+        <div class="col-lg-7">
+            <form asp-action="Contact" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Phone" class="form-label"></label>
+                    <input asp-for="Phone" class="form-control" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Message" class="form-label"></label>
+                    <textarea asp-for="Message" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Message" class="text-danger"></span>
+                </div>
+                <button class="btn btn-gold" type="submit">إرسال</button>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

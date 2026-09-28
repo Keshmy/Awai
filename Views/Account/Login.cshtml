@@ -1,0 +1,36 @@
+@model LoginVM
+@{
+    ViewData["Title"] = "تسجيل الدخول";
+}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="service-card">
+                <h3>تسجيل الدخول</h3>
+                <p class="text-muted">للعملاء والموظفين</p>
+                <form asp-action="Login" method="post">
+                    <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" class="form-control" />
+                    </div>
+                    <div class="form-check mb-3">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label"></label>
+                    </div>
+                    <button class="btn btn-gold w-100" type="submit">دخول</button>
+                    <p class="text-center mt-3 mb-0">
+                        ليس لديك حساب؟
+                        <a asp-action="Register">إنشاء حساب</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

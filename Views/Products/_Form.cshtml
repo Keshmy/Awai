@@ -1,0 +1,20 @@
+@model Product
+@{
+    ViewData["Title"] = Model.Id == Guid.Empty ? "إضافة نوع" : "تعديل نوع";
+}
+<h2>@ViewData["Title"]</h2>
+<form method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Created" />
+    <div class="mb-3"><label asp-for="Title"></label><input asp-for="Title" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="ShortDescription"></label><textarea asp-for="ShortDescription" class="form-control"></textarea></div>
+    <div class="mb-3"><label asp-for="Details"></label><textarea asp-for="Details" class="form-control"></textarea></div>
+    <div class="row">
+        <div class="col-md-6 mb-3"><label asp-for="Price"></label><input asp-for="Price" class="form-control" /></div>
+        <div class="col-md-6 mb-3"><label asp-for="PriceNote"></label><input asp-for="PriceNote" class="form-control" placeholder="يبدأ من / سنوياً" /></div>
+    </div>
+    <div class="mb-3"><label asp-for="IconClass"></label><input asp-for="IconClass" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="SortOrder"></label><input asp-for="SortOrder" class="form-control" /></div>
+    <div class="form-check mb-3"><input asp-for="IsPublished" class="form-check-input" /><label asp-for="IsPublished" class="form-check-label"></label></div>
+    <button class="btn btn-gold" type="submit">حفظ</button>
+</form>

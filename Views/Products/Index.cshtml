@@ -1,0 +1,28 @@
+@model IEnumerable<Product>
+@{
+    ViewData["Title"] = "أنواع التأمين";
+}
+<div class="d-flex justify-content-between mb-3">
+    <h2>أنواع التأمين</h2>
+    <a class="btn btn-gold" asp-action="Create">إضافة</a>
+</div>
+<table class="table">
+    <thead><tr><th>الترتيب</th><th>الاسم</th><th>السعر</th><th>ظاهر</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var p in Model)
+    {
+        <tr>
+            <td>@p.SortOrder</td>
+            <td>@p.Title</td>
+            <td>@p.PriceDisplay</td>
+            <td>@(p.IsPublished ? "نعم" : "لا")</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@p.Id">تعديل</a>
+                <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="d-inline" onsubmit="return confirm('حذف؟');">
+                    <button class="btn btn-link text-danger p-0">حذف</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

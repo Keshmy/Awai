@@ -1,0 +1,18 @@
+@model CreateEmployeeVM
+@{
+    ViewData["Title"] = "موظف جديد";
+    ViewBag.TeamTab = "employees";
+}
+<partial name="Partial/_TeamTabs" />
+<h2>موظف جديد</h2>
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3"><label asp-for="Email"></label><input asp-for="Email" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Password"></label><input asp-for="Password" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Age"></label><input asp-for="Age" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Employee.Name"></label><input asp-for="Employee.Name" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Employee.WorkPhone"></label><input asp-for="Employee.WorkPhone" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Employee.JobTitle"></label><input asp-for="Employee.JobTitle" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Employee.Address"></label><input asp-for="Employee.Address" class="form-control" /></div>
+    <button class="btn btn-gold" type="submit">حفظ</button>
+</form>

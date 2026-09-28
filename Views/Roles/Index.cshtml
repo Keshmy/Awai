@@ -1,0 +1,25 @@
+@model IEnumerable<RoleVM>
+@{
+    ViewData["Title"] = "الصلاحيات";
+    ViewBag.TeamTab = "roles";
+}
+<partial name="Partial/_TeamTabs" />
+<div class="d-flex justify-content-between mb-3">
+    <div>
+        <h2 class="mb-1">الصلاحيات</h2>
+        <p class="text-muted mb-0">Prog محمية ولا تُمنح. Admin يمنح Employee فقط. المبرمج يمكنه منح Admin و Employee.</p>
+    </div>
+    @if (User.IsInRole("Prog"))
+    {
+        <a class="btn btn-gold" asp-action="Create">إضافة</a>
+    }
+</div>
+<table class="table">
+    <thead><tr><th>الاسم</th><th>المستخدمون</th></tr></thead>
+    <tbody>
+    @foreach (var r in Model)
+    {
+        <tr><td>@r.Name</td><td>@r.UsersCount</td></tr>
+    }
+    </tbody>
+</table>

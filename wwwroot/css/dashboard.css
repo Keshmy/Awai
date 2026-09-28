@@ -1,0 +1,61 @@
+html, body { font-family: 'Cairo', sans-serif; }
+.dash-body { background: #f3f5f8; margin: 0; }
+.dash-wrap { display: flex; min-height: 100vh; }
+.dash-side {
+  width: 250px;
+  background: #001f3f;
+  color: #fff;
+  flex-shrink: 0;
+}
+.side-brand { display: flex; align-items: center; gap: .6rem; color: #d4af37; text-decoration: none; padding: 1.2rem; font-weight: 700; }
+.side-brand img { width: 42px; height: 42px; object-fit: contain; }
+.side-nav a { display: block; color: #e8eef5; text-decoration: none; padding: .7rem 1.2rem; }
+.side-nav a:hover, .side-nav a.active { background: rgba(212,175,55,.15); color: #d4af37; }
+.dash-main { flex: 1; }
+.dash-top { background: #fff; padding: .9rem 1.4rem; display: flex; justify-content: space-between; border-bottom: 1px solid #e5e5e5; }
+.dash-user-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  color: #001f3f;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 1px;
+  transition: color .15s ease, border-color .15s ease;
+}
+.dash-user-link:hover,
+.dash-user-link:focus {
+  color: #d4af37;
+  border-bottom-color: #d4af37;
+}
+.dash-user-link i { font-size: 1.15rem; line-height: 1; }
+.staff-notif-bell { color: #001f3f; }
+.staff-notif-bell:hover { color: #d4af37; }
+.staff-notif-menu { min-width: 320px; max-width: 360px; }
+.staff-notif-list { max-height: 360px; overflow-y: auto; }
+.staff-notif-item { white-space: normal; border-bottom: 1px solid #f0f0f0; }
+.staff-notif-item:last-child { border-bottom: 0; }
+.dash-content { padding: 1.5rem; }
+.stat-card { background: #fff; border-right: 4px solid #d4af37; padding: 1rem 1.2rem; border-radius: 8px; }
+.btn-gold { background: #d4af37; border-color: #d4af37; color: #001f3f; font-weight: 700; }
+.btn-gold:hover { background: #c4a02e; color: #001f3f; }
+.price-tag small { display: block; color: #6b7280; font-size: .8rem; }
+.price-tag strong { color: #d4af37; font-size: 1.15rem; }
+.print-only { display: none !important; }
+@media (max-width: 900px) {
+  .dash-wrap { flex-direction: column; }
+  .dash-side { width: 100%; }
+}
+@media print {
+  .dash-side,
+  .dash-top,
+  .no-print,
+  .toast-container { display: none !important; }
+  .dash-wrap { display: block; }
+  .dash-main { width: 100%; }
+  .dash-content { padding: 0; }
+  .print-only { display: block !important; }
+  .stat-card { break-inside: avoid; border: 1px solid #ccc; }
+  .report-table { font-size: 12px; }
+}

@@ -1,0 +1,249 @@
+@model CompulsoryPolicyVM
+@using Awai.Services.Ims
+@{
+    ViewData["Title"] = "وثيقة جديدة - سيارات إجباري";
+    var connected = ViewBag.ImsConnected as bool? == true;
+    var vehicleTypes = ViewBag.VehicleTypes as IEnumerable<LisaVehicleType> ?? Enumerable.Empty<LisaVehicleType>();
+    var imsError = ViewBag.ImsError as string;
+}
+<div class="policy-page">
+    <div class="container py-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+                <h1 class="policy-title mb-1">وثيقة جديدة — سيارات إجباري</h1>
+                <p class="text-muted mb-0 small">@(connected ? "متصل بنظام LISA — وضع الاختبار: احتساب القسط يعمل، وإصدار الوثيقة يبقى موقوفاً" : "وضع العرض المحلي — مفتاح الربط غير موجود")</p>
+            </div>
+            <a class="btn btn-outline-secondary btn-sm" asp-controller="Apply" asp-action="Index">رجوع لاختيار النوع</a>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(imsError))
+        {
+            <div class="alert alert-danger border-0 shadow-sm">@imsError</div>
+        }
+        else if (connected)
+        {
+            <div class="alert alert-info border-0 shadow-sm">
+                <i class="bi bi-info-circle"></i>
+                الأنواع تُجلب من نظام التأمين. <strong>احتساب ومعاينة</strong> يرسل استعلام القسط. <strong>إصدار الوثيقة</strong> لا يُحفظ في وضع الاختبار.
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info border-0 shadow-sm">
+                <i class="bi bi-info-circle"></i>
+                هذه الشاشة مطابقة لتدفق النظام الخارجي (IMS). أزرار <strong>احتساب ومعاينة</strong> و<strong>إصدار الوثيقة</strong> تعمل محلياً للعرض فقط.
+            </div>
+        }
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 shadow-sm"></div>
+        }
+
+        <form id="compulsoryForm" method="post" novalidate>
+            @Html.AntiForgeryToken()
+
+            <div class="policy-card mb-3">
+                <div class="policy-card-head"><i class="bi bi-person-vcard"></i> المؤمن له / المشترك</div>
+                <div class="policy-card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label asp-for="InsuredName" class="form-label"></label>
+                            <input asp-for="InsuredName" class="form-control" placeholder="الاسم الكامل" />
+                            <span asp-validation-for="InsuredName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="NationalId" class="form-label"></label>
+                            <input asp-for="NationalId" class="form-control" placeholder="الرقم الوطني / جواز السفر" />
+                            <span asp-validation-for="NationalId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Phone" class="form-label"></label>
+                            <input asp-for="Phone" class="form-control" placeholder="0912345678" dir="ltr" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Nationality" class="form-label"></label>
+                            <select asp-for="Nationality" class="form-select">
+                                <option>ليبي</option>
+                                <option>أجنبي</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="policy-card mb-3">
+                <div class="policy-card-head"><i class="bi bi-car-front"></i> بيانات المركبة</div>
+                <div class="policy-card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label asp-for="PlateNumber" class="form-label"></label>
+                            <input asp-for="PlateNumber" class="form-control" placeholder="حروف/أرقام وشرطة - بحد أقصى 30" />
+                            <div class="form-text">أدخل اللوحة المعدنية (عربي/إنجليزي، أرقام، شرطة)</div>
+                            <span asp-validation-for="PlateNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Make" class="form-label"></label>
+                            <input asp-for="Make" class="form-control" placeholder="مثال: تويوتا" />
+                            <span asp-validation-for="Make" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Color" class="form-label"></label>
+                            <input asp-for="Color" class="form-control" placeholder="لون المركبة" />
+                            <span asp-validation-for="Color" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="ChassisNumber" class="form-label"></label>
+                            <input asp-for="ChassisNumber" class="form-control" placeholder="حروف وأرقام فقط" />
+                            <span asp-validation-for="ChassisNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="ManufactureYear" class="form-label"></label>
+                            <input asp-for="ManufactureYear" class="form-control" placeholder="مثال: 2022" />
+                            <span asp-validation-for="ManufactureYear" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="RegistrationAuthority" class="form-label"></label>
+                            <input asp-for="RegistrationAuthority" class="form-control" placeholder="مثال: طرابلس" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="policy-card mb-3">
+                <div class="policy-card-head"><i class="bi bi-list-check"></i> التصنيف والتفاصيل</div>
+                <div class="policy-card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label asp-for="MainVehicleType" class="form-label"></label>
+                            <select asp-for="MainVehicleType" class="form-select" id="mainVehicleType">
+                                <option value="">— اختر النوع الرئيسي —</option>
+                                @if (connected)
+                                {
+                                    foreach (var t in vehicleTypes)
+                                    {
+                                        <option value="@t.Id">@t.TypeVehicle</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="مركبة خاصة معدة للإستعمال الشخصي">مركبة خاصة معدة للإستعمال الشخصي</option>
+                                    <option value="سيارة أجرة">سيارة أجرة</option>
+                                    <option value="مركبة نقل بضائع">مركبة نقل بضائع</option>
+                                    <option value="مقطورة">مقطورة</option>
+                                }
+                            </select>
+                            <span asp-validation-for="MainVehicleType" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="ModelDetail" class="form-label"></label>
+                            <select asp-for="ModelDetail" class="form-select" id="modelDetail" data-selected="@Model.ModelDetail">
+                                <option value="">— اختر الموديل —</option>
+                            </select>
+                            <span asp-validation-for="ModelDetail" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="ExtraDetail" class="form-label"></label>
+                            <select asp-for="ExtraDetail" class="form-select" id="extraDetail" data-selected="@Model.ExtraDetail">
+                                <option value="">— لا يوجد خيار —</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Passengers" class="form-label"></label>
+                            <input asp-for="Passengers" class="form-control" type="number" min="0" />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="EngineHp" class="form-label"></label>
+                            <input asp-for="EngineHp" class="form-control" type="number" min="0" />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="LoadTons" class="form-label"></label>
+                            <input asp-for="LoadTons" class="form-control" type="number" min="0" step="0.1" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="policy-card mb-4">
+                <div class="policy-card-head"><i class="bi bi-calendar3"></i> مدة التغطية (Cover Period)</div>
+                <div class="policy-card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="StartDate" class="form-label"></label>
+                            <input asp-for="StartDate" class="form-control" type="date" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="CoverDuration" class="form-label"></label>
+                            <select asp-for="CoverDuration" class="form-select">
+                                <option value="annual">تأمين سنوي (365 يوماً)</option>
+                                <option value="six">ستة أشهر (180 يوماً)</option>
+                                <option value="three">ثلاثة أشهر (90 يوماً)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button class="btn btn-policy-preview btn-lg" type="submit" formaction="@Url.Action("PreviewCompulsory")" formmethod="post">
+                    احتساب ومعاينة (Preview)
+                </button>
+                <button class="btn btn-policy-issue btn-lg" type="submit" formaction="@Url.Action("IssueCompulsory")" formmethod="post">
+                    إصدار الوثيقة (Issue)
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <link rel="stylesheet" href="~/css/policy.css" asp-append-version="true" />
+    @if (connected)
+    {
+        <script>
+            (function () {
+                const main = document.getElementById('mainVehicleType');
+                const spec = document.getElementById('modelDetail');
+                const extra = document.getElementById('extraDetail');
+                if (!main || !spec || !extra) return;
+
+                function fill(select, items, placeholder) {
+                    const selected = select.getAttribute('data-selected') || '';
+                    select.innerHTML = '';
+                    const empty = document.createElement('option');
+                    empty.value = '';
+                    empty.textContent = placeholder;
+                    select.appendChild(empty);
+                    (items || []).forEach(function (item) {
+                        const opt = document.createElement('option');
+                        opt.value = item.id;
+                        opt.textContent = item.specVehicle;
+                        if (selected && selected === item.id) opt.selected = true;
+                        select.appendChild(opt);
+                    });
+                }
+
+                async function loadChildren() {
+                    const id = main.value;
+                    fill(spec, [], '— اختر الموديل —');
+                    fill(extra, [], '— لا يوجد خيار —');
+                    if (!id) return;
+                    const [specs, details] = await Promise.all([
+                        fetch('/Policy/SpecVehicles?typeId=' + encodeURIComponent(id)).then(r => r.json()),
+                        fetch('/Policy/DetailVehicles?typeId=' + encodeURIComponent(id)).then(r => r.json())
+                    ]);
+                    fill(spec, specs, '— اختر الموديل —');
+                    fill(extra, details, '— لا يوجد خيار —');
+                }
+
+                main.addEventListener('change', function () {
+                    spec.setAttribute('data-selected', '');
+                    extra.setAttribute('data-selected', '');
+                    loadChildren();
+                });
+                if (main.value) loadChildren();
+            })();
+        </script>
+    }
+}

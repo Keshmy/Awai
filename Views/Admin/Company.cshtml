@@ -1,0 +1,53 @@
+@model CompanyContentVM
+@{
+    ViewData["Title"] = "بيانات الشركة";
+}
+<h2 class="mb-3">بيانات الشركة والصفحات</h2>
+<p class="text-muted">تعديل معلومات الشركة، من نحن، ومن نكون في مكان واحد.</p>
+
+<form asp-action="Company" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Site.Id" />
+    <input type="hidden" asp-for="AboutId" />
+    <input type="hidden" asp-for="WhoWeAreId" />
+    <input type="hidden" asp-for="Site.LogoUrl" />
+    <input type="hidden" name="KeepLogo" value="1" />
+
+    <div class="card mb-4">
+        <div class="card-header fw-bold">معلومات الشركة</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3"><label asp-for="Site.Name" class="form-label"></label><input asp-for="Site.Name" class="form-control" /></div>
+                <div class="col-md-6 mb-3"><label asp-for="Site.Slogan" class="form-label"></label><input asp-for="Site.Slogan" class="form-control" /></div>
+                <div class="col-md-6 mb-3"><label asp-for="Site.Phone" class="form-label"></label><input asp-for="Site.Phone" class="form-control" /></div>
+                <div class="col-md-6 mb-3"><label asp-for="Site.Phone2" class="form-label"></label><input asp-for="Site.Phone2" class="form-control" /></div>
+                <div class="col-md-6 mb-3"><label asp-for="Site.WhatsAppNumber" class="form-label"></label><input asp-for="Site.WhatsAppNumber" class="form-control" placeholder="218940001097" /></div>
+                <div class="col-md-6 mb-3"><label asp-for="Site.Email" class="form-label"></label><input asp-for="Site.Email" class="form-control" /></div>
+                <div class="col-12 mb-3"><label asp-for="Site.Address" class="form-label"></label><input asp-for="Site.Address" class="form-control" /></div>
+                <div class="col-12 mb-3"><label asp-for="Site.MapUrl" class="form-label"></label><input asp-for="Site.MapUrl" class="form-control" /></div>
+                <div class="col-12 mb-3"><label asp-for="Site.MapEmbedUrl" class="form-label"></label><input asp-for="Site.MapEmbedUrl" class="form-control" /></div>
+                <div class="col-12 mb-3">
+                    <label asp-for="Site.Logo" class="form-label"></label>
+                    <input asp-for="Site.Logo" type="file" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header fw-bold">من نحن</div>
+        <div class="card-body">
+            <div class="mb-3"><label asp-for="AboutTitle" class="form-label"></label><input asp-for="AboutTitle" class="form-control" /></div>
+            <div class="mb-3"><label asp-for="AboutBody" class="form-label"></label><textarea asp-for="AboutBody" class="form-control" rows="6"></textarea></div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header fw-bold">من نكون</div>
+        <div class="card-body">
+            <div class="mb-3"><label asp-for="WhoWeAreTitle" class="form-label"></label><input asp-for="WhoWeAreTitle" class="form-control" /></div>
+            <div class="mb-3"><label asp-for="WhoWeAreBody" class="form-label"></label><textarea asp-for="WhoWeAreBody" class="form-control" rows="6"></textarea></div>
+        </div>
+    </div>
+
+    <button class="btn btn-gold" type="submit">حفظ الكل</button>
+</form>

@@ -1,0 +1,18 @@
+@model IEnumerable<PageContent>
+@{
+    ViewData["Title"] = "الصفحات";
+}
+<h2>من نحن / من نكون</h2>
+<table class="table">
+    <thead><tr><th>المفتاح</th><th>العنوان</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var p in Model)
+    {
+        <tr>
+            <td>@p.Key</td>
+            <td>@p.Title</td>
+            <td><a asp-action="Edit" asp-route-id="@p.Id">تعديل</a></td>
+        </tr>
+    }
+    </tbody>
+</table>

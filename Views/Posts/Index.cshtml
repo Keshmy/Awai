@@ -1,0 +1,27 @@
+@model IEnumerable<Post>
+@{
+    ViewData["Title"] = "العروض والمنشورات";
+}
+<div class="d-flex justify-content-between mb-3">
+    <h2>العروض والمنشورات</h2>
+    <a class="btn btn-gold" asp-action="Create">إضافة</a>
+</div>
+<table class="table">
+    <thead><tr><th>العنوان</th><th>منشور</th><th>التاريخ</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var p in Model)
+    {
+        <tr>
+            <td>@p.Title</td>
+            <td>@(p.IsPublished ? "نعم" : "لا")</td>
+            <td>@p.PublishedAt.ToLocalTime().ToString("dd-MM-yyyy")</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@p.Id">تعديل</a>
+                <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="d-inline" onsubmit="return confirm('حذف؟');">
+                    <button class="btn btn-link text-danger p-0">حذف</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

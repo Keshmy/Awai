@@ -1,0 +1,80 @@
+@model IEnumerable<UserListItemVM>
+@{
+    ViewData["Title"] = "المستخدمون والاعتماد";
+    ViewBag.TeamTab = "users";
+    var filter = ViewBag.Filter as string;
+}
+<partial name="Partial/_TeamTabs" />
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+        <h2 class="mb-1">المستخدمون</h2>
+        <p class="text-muted mb-0">الحسابات الجديدة تحتاج موافقة. صلاحية المبرمج (Prog) محمية ولا تُمنح لأحد.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary @(filter == "pending" ? "active" : "")" asp-action="Index" asp-route-filter="pending">بانتظار الاعتماد</a>
+        <a class="btn btn-outline-secondary @(filter == null ? "active" : "")" asp-action="Index">الكل</a>
+        <a class="btn btn-gold" asp-action="Create">إضافة مستخدم</a>
+    </div>
+</div>
+
+<table class="table align-middle">
+    <thead>
+        <tr>
+            <th>البريد</th>
+            <th>الاسم</th>
+            <th>الصلاحيات</th>
+            <th>الحالة</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var u in Model)
+    {
+        <tr>
+            <td>@u.Email</td>
+            <td>@u.DisplayName</td>
+            <td>@(u.Roles.Any() ? string.Join(", ", u.Roles) : "—")</td>
+            <td>
+                @if (u.IsProtected)
+                {
+                    <span class="badge text-bg-dark">محمي (مبرمج)</span>
+                }
+                else if (u.IsApproved)
+                {
+                    <span class="badge text-bg-success">معتمد</span>
+                }
+                else
+                {
+                    <span class="badge text-bg-warning">بانتظار الموافقة</span>
+                }
+            </td>
+            <td class="text-nowrap">
+                @if (u.IsProtected)
+                {
+                    <span class="text-muted">لا يمكن التعديل</span>
+                }
+                else
+                {
+                    <a asp-action="Edit" asp-route-id="@u.Id">تعديل / صلاحيات</a>
+                    @if (!u.IsApproved)
+                    {
+                        <form asp-action="Approve" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <input type="hidden" name="role" value="Employee" />
+                            <button class="btn btn-sm btn-gold" type="submit">اعتماد</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Reject" method="post" class="d-inline" onsubmit="return confirm('إيقاف الاعتماد؟');">
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <button class="btn btn-sm btn-outline-danger" type="submit">إلغاء الاعتماد</button>
+                        </form>
+                    }
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

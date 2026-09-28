@@ -1,0 +1,130 @@
+@model InsuranceApplication
+@{
+    ViewData["Title"] = "تفاصيل الطلب";
+    var product = Model.Product;
+}
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+    <div>
+        <h2 class="mb-1">طلب: @Model.FullName</h2>
+        <span class="badge @ApplicationStatusText.Css(Model.Status)">@ApplicationStatusText.Arabic(Model.Status)</span>
+        <span class="text-muted ms-2">@Model.CreatedDateLocalTime</span>
+    </div>
+    <a class="btn btn-outline-secondary" asp-action="Index">رجوع للقائمة</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header fw-bold">بيانات مقدم الطلب</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">الاسم</dt>
+                    <dd class="col-sm-8">@Model.FullName</dd>
+
+                    <dt class="col-sm-4">الهاتف</dt>
+                    <dd class="col-sm-8">
+                        @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                        {
+                            <a href="tel:@Model.Phone">@Model.Phone</a>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4">البريد</dt>
+                    <dd class="col-sm-8">
+                        @if (!string.IsNullOrWhiteSpace(Model.Email))
+                        {
+                            <a href="mailto:@Model.Email">@Model.Email</a>
+                        }
+                        else { <span class="text-muted">—</span> }
+                    </dd>
+
+                    <dt class="col-sm-4">الرقم الوطني</dt>
+                    <dd class="col-sm-8">@(Model.NationalId ?? "—")</dd>
+
+                    <dt class="col-sm-4">تاريخ الميلاد</dt>
+                    <dd class="col-sm-8">@(Model.DateOfBirth?.ToString("yyyy-MM-dd") ?? "—")</dd>
+
+                    <dt class="col-sm-4">العنوان</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Address) ? "—" : Model.Address)</dd>
+
+                    <dt class="col-sm-4">ملاحظات</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Notes) ? "—" : Model.Notes)</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card mb-3">
+            <div class="card-header fw-bold">نوع التأمين والسعر</div>
+            <div class="card-body">
+                <h5 class="mb-2">@(product?.Title ?? "—")</h5>
+                @if (product != null)
+                {
+                    <p class="mb-1 text-muted">@product.ShortDescription</p>
+                    <div class="price-tag mb-0">
+                        <small>@(string.IsNullOrWhiteSpace(product.PriceNote) ? "يبدأ من" : product.PriceNote)</small>
+                        <strong>@product.PriceDisplay</strong>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header fw-bold">تحديث الحالة</div>
+            <div class="card-body d-flex flex-wrap gap-2">
+                <form asp-action="SetStatus" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="status" value="@ApplicationStatus.Submitted" />
+                    <button class="btn btn-outline-primary btn-sm" type="submit">جديد</button>
+                </form>
+                <form asp-action="SetStatus" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="status" value="@ApplicationStatus.Reviewed" />
+                    <button class="btn btn-gold btn-sm" type="submit">تمت المراجعة</button>
+                </form>
+                <form asp-action="SetStatus" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="status" value="@ApplicationStatus.Synced" />
+                    <button class="btn btn-outline-success btn-sm" type="submit">معتمد / مكتمل</button>
+                </form>
+                <form asp-action="SetStatus" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="status" value="@ApplicationStatus.Failed" />
+                    <button class="btn btn-outline-danger btn-sm" type="submit">مرفوض / فشل</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header fw-bold">المستندات (@Model.Documents.Count)</div>
+    <div class="card-body">
+        @if (!Model.Documents.Any())
+        {
+            <p class="text-muted mb-0">لا توجد مستندات مرفقة.</p>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var d in Model.Documents)
+                {
+                    var ext = System.IO.Path.GetExtension(d.OriginalFileName).ToLowerInvariant();
+                    var isImage = ext is ".jpg" or ".jpeg" or ".png" or ".gif" or ".webp";
+                    <div class="col-md-4">
+                        <div class="border rounded p-2 h-100">
+                            <div class="fw-semibold mb-1">@d.DocumentType</div>
+                            <div class="small text-muted mb-2">@d.OriginalFileName</div>
+                            @if (isImage)
+                            {
+                                <a href="/upload/@d.FileUrl" target="_blank">
+                                    <img src="/upload/@d.FileUrl" alt="@d.OriginalFileName" class="img-fluid rounded mb-2" style="max-height:160px;object-fit:cover;width:100%" />
+                                </a>
+                            }
+                            <a class="btn btn-sm btn-outline-secondary" href="/upload/@d.FileUrl" target="_blank">فتح / تحميل</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

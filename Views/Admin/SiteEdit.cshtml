@@ -1,0 +1,25 @@
+@model SiteInfo
+@{
+    ViewData["Title"] = "بيانات الشركة";
+}
+<h2>بيانات الشركة</h2>
+<form asp-action="SiteEdit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="LogoUrl" />
+    <div class="row">
+        <div class="col-md-6 mb-3"><label asp-for="Name"></label><input asp-for="Name" class="form-control" /></div>
+        <div class="col-md-6 mb-3"><label asp-for="Slogan"></label><input asp-for="Slogan" class="form-control" /></div>
+        <div class="col-md-6 mb-3"><label asp-for="Phone"></label><input asp-for="Phone" class="form-control" /></div>
+        <div class="col-md-6 mb-3"><label asp-for="Phone2"></label><input asp-for="Phone2" class="form-control" /></div>
+        <div class="col-md-6 mb-3"><label asp-for="Email"></label><input asp-for="Email" class="form-control" /></div>
+        <div class="col-12 mb-3"><label asp-for="Address"></label><input asp-for="Address" class="form-control" /></div>
+        <div class="col-12 mb-3"><label asp-for="MapUrl"></label><input asp-for="MapUrl" class="form-control" /></div>
+        <div class="col-12 mb-3"><label asp-for="MapEmbedUrl"></label><input asp-for="MapEmbedUrl" class="form-control" /></div>
+        <div class="col-12 mb-3">
+            <label asp-for="Logo"></label>
+            <input asp-for="Logo" type="file" class="form-control" />
+            <input type="hidden" name="isLogo" value="1" />
+        </div>
+    </div>
+    <button class="btn btn-gold" type="submit">حفظ</button>
+</form>

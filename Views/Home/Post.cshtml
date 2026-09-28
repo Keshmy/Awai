@@ -1,0 +1,13 @@
+@model Post
+@{
+    ViewData["Title"] = Model.Title;
+}
+<div class="container py-5" style="max-width:760px">
+    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+    {
+        <img src="/upload/@Model.ImageUrl" class="img-fluid rounded mb-3" alt="@Model.Title" />
+    }
+    <h1>@Model.Title</h1>
+    <p class="text-muted">@Model.PublishedAt.ToLocalTime().ToString("dd-MM-yyyy")</p>
+    <p>@Model.Body</p>
+</div>

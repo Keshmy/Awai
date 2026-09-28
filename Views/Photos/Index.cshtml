@@ -1,0 +1,21 @@
+@model IEnumerable<SitePhoto>
+@{
+    ViewData["Title"] = "الصور";
+}
+<div class="d-flex justify-content-between mb-3">
+    <h2>صور الموقع</h2>
+    <a class="btn btn-gold" asp-action="Create">إضافة</a>
+</div>
+<div class="row g-3">
+@foreach (var p in Model)
+{
+    <div class="col-md-3">
+        <img src="/upload/@p.ImageUrl" class="img-fluid rounded mb-2" alt="@p.Title" />
+        <div>@p.Title</div>
+        <a asp-action="Edit" asp-route-id="@p.Id">تعديل</a>
+        <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="d-inline" onsubmit="return confirm('حذف؟');">
+            <button class="btn btn-link text-danger p-0">حذف</button>
+        </form>
+    </div>
+}
+</div>

@@ -1,0 +1,54 @@
+@model NewsListVM
+@{
+    ViewData["Title"] = "الأخبار والعروض";
+}
+<section class="section news-section news-page">
+    <div class="news-watermark" aria-hidden="true"></div>
+    <div class="container position-relative">
+        <h1 class="section-title">الأخبار والعروض</h1>
+        @if (!Model.Posts.Any())
+        {
+            <p class="text-center text-muted">لا توجد أخبار منشورة حالياً.</p>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var post in Model.Posts)
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="post-card">
+                            @if (!string.IsNullOrEmpty(post.ImageUrl))
+                            {
+                                <img src="/upload/@post.ImageUrl" alt="@post.Title" />
+                            }
+                            <div class="post-date">@post.PublishedAt.ToLocalTime().ToString("dd-MM-yyyy")</div>
+                            <h5>@post.Title</h5>
+                            <p>@(post.Body.Length > 120 ? post.Body[..120] + "..." : post.Body)</p>
+                            <a asp-controller="Home" asp-action="Post" asp-route-id="@post.Id">اقرأ المزيد</a>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="news-pagination mt-4" aria-label="صفحات الأخبار">
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item @(Model.HasPrev ? "" : "disabled")">
+                            <a class="page-link" asp-action="News" asp-route-page="@(Model.Page - 1)">السابق</a>
+                        </li>
+                        @for (var i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.Page ? "active" : "")">
+                                <a class="page-link" asp-action="News" asp-route-page="@i">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                            <a class="page-link" asp-action="News" asp-route-page="@(Model.Page + 1)">التالي</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        }
+    </div>
+</section>

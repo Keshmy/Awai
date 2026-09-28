@@ -1,0 +1,24 @@
+@model IEnumerable<Employee>
+@{
+    ViewData["Title"] = "الموظفون";
+    ViewBag.TeamTab = "employees";
+}
+<partial name="Partial/_TeamTabs" />
+<div class="d-flex justify-content-between mb-3">
+    <h2>الموظفون</h2>
+    <a class="btn btn-gold" asp-action="Create">إضافة</a>
+</div>
+<table class="table">
+    <thead><tr><th>الاسم</th><th>البريد</th><th>الهاتف</th><th>المسمى</th></tr></thead>
+    <tbody>
+    @foreach (var e in Model)
+    {
+        <tr>
+            <td>@e.Name</td>
+            <td>@e.ApplicationUser?.Email</td>
+            <td>@e.WorkPhone</td>
+            <td>@e.JobTitle</td>
+        </tr>
+    }
+    </tbody>
+</table>

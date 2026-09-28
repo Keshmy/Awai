@@ -1,0 +1,16 @@
+@model Post
+@{
+    ViewData["Title"] = Model.Id == Guid.Empty ? "منشور جديد" : "تعديل منشور";
+}
+<h2>@ViewData["Title"]</h2>
+<form method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Created" />
+    <input type="hidden" asp-for="ImageUrl" />
+    <div class="mb-3"><label asp-for="Title"></label><input asp-for="Title" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Body"></label><textarea asp-for="Body" class="form-control" rows="8"></textarea></div>
+    <div class="mb-3"><label asp-for="PublishedAt"></label><input asp-for="PublishedAt" class="form-control" /></div>
+    <div class="form-check mb-3"><input asp-for="IsPublished" class="form-check-input" /><label asp-for="IsPublished"></label></div>
+    <div class="mb-3"><label asp-for="Image"></label><input asp-for="Image" type="file" class="form-control" /><input type="hidden" name="isImg" value="1" /></div>
+    <button class="btn btn-gold" type="submit">حفظ</button>
+</form>

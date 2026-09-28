@@ -1,0 +1,94 @@
+@model ReportFilterVM
+@{
+    ViewData["Title"] = "التقارير";
+}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 no-print">
+    <h2 class="mb-0">تقرير طلبات التأمين</h2>
+    <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+        <i class="bi bi-printer"></i> طباعة
+    </button>
+</div>
+
+<div class="card mb-4 no-print">
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label asp-for="FromDate" class="form-label"></label>
+                <input asp-for="FromDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label asp-for="ToDate" class="form-label"></label>
+                <input asp-for="ToDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label asp-for="ProductId" class="form-label"></label>
+                <select asp-for="ProductId" asp-items="ViewBag.Products" class="form-select">
+                    <option value="">— كل الأنواع —</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Status" class="form-label"></label>
+                <select asp-for="Status" class="form-select">
+                    <option value="">— كل الحالات —</option>
+                    <option value="@ApplicationStatus.Submitted">جديد / مُرسل</option>
+                    <option value="@ApplicationStatus.Reviewed">تمت المراجعة</option>
+                    <option value="@ApplicationStatus.Synced">معتمد / مكتمل</option>
+                    <option value="@ApplicationStatus.Failed">فشل / مرفوض</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-gold">عرض التقرير</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="report-print-header print-only mb-3">
+    <h3>تقرير طلبات التأمين — الواحة العربية للتأمين</h3>
+    <p class="mb-0">
+        من @(Model.FromDate?.ToString("yyyy-MM-dd") ?? "—")
+        إلى @(Model.ToDate?.ToString("yyyy-MM-dd") ?? "—")
+    </p>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4 col-lg-2"><div class="stat-card">الإجمالي<br /><b>@Model.TotalCount</b></div></div>
+    <div class="col-md-4 col-lg-2"><div class="stat-card">جديد<br /><b>@Model.SubmittedCount</b></div></div>
+    <div class="col-md-4 col-lg-2"><div class="stat-card">مراجع<br /><b>@Model.ReviewedCount</b></div></div>
+    <div class="col-md-4 col-lg-2"><div class="stat-card">معتمد<br /><b>@Model.SyncedCount</b></div></div>
+    <div class="col-md-4 col-lg-2"><div class="stat-card">مرفوض<br /><b>@Model.FailedCount</b></div></div>
+    <div class="col-md-4 col-lg-2"><div class="stat-card">مجموع الأسعار<br /><b>@Model.PriceSum.ToString("N0") د.ل</b></div></div>
+</div>
+
+<table class="table align-middle table-striped report-table">
+    <thead>
+        <tr>
+            <th>التاريخ</th>
+            <th>الاسم</th>
+            <th>الهاتف</th>
+            <th>نوع التأمين</th>
+            <th>السعر</th>
+            <th>الحالة</th>
+            <th class="no-print"></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var a in Model.Results)
+    {
+        <tr>
+            <td>@a.CreatedDateLocalTime</td>
+            <td>@a.FullName</td>
+            <td>@a.Phone</td>
+            <td>@a.Product?.Title</td>
+            <td>@(a.Product?.PriceDisplay ?? "—")</td>
+            <td><span class="badge @ApplicationStatusText.Css(a.Status)">@ApplicationStatusText.Arabic(a.Status)</span></td>
+            <td class="no-print"><a asp-controller="Applications" asp-action="Details" asp-route-id="@a.Id">تفاصيل</a></td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@if (!Model.Results.Any())
+{
+    <p class="text-muted">لا توجد طلبات مطابقة للفلاتر المحددة.</p>
+}

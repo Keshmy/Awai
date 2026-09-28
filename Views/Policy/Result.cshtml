@@ -1,0 +1,90 @@
+@using Awai.Services.Ims
+@{
+    var actionLabel = ViewBag.ActionLabel as string ?? "معاينة";
+    var policyRef = ViewBag.PolicyRef as string;
+    var backAction = ViewBag.BackAction as string ?? "Compulsory";
+    var demo = ViewBag.DemoMode as bool? != false;
+    var isError = ViewBag.IsError as bool? == true;
+    var message = ViewBag.ApiMessage as string;
+    var pdfUrl = ViewBag.PdfUrl as string;
+    var premium = ViewBag.Premium as LisaInquiryResponse;
+}
+<div class="policy-page">
+    <div class="container py-4" style="max-width:820px">
+        @if (isError)
+        {
+            <div class="alert alert-warning border-0 shadow-sm">
+                <h4 class="alert-heading mb-1">@actionLabel</h4>
+                <p class="mb-0">@message</p>
+            </div>
+        }
+        else if (demo)
+        {
+            <div class="alert alert-success border-0 shadow-sm">
+                <h4 class="alert-heading mb-1">نتيجة تجريبية — @actionLabel</h4>
+                <p class="mb-0">لم يتم الاتصال بالنظام الخارجي بعد. هذه شاشة عرض فقط.</p>
+                @if (!string.IsNullOrEmpty(policyRef))
+                {
+                    <p class="mt-2 mb-0"><strong>مرجع تجريبي:</strong> <span dir="ltr">@policyRef</span></p>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-success border-0 shadow-sm">
+                <h4 class="alert-heading mb-1">@actionLabel</h4>
+                <p class="mb-0">@(string.IsNullOrWhiteSpace(message) ? "تم استلام الرد من نظام التأمين." : message)</p>
+                @if (!string.IsNullOrEmpty(policyRef))
+                {
+                    <p class="mt-2 mb-0"><strong>رقم المعاملة:</strong> <span dir="ltr">@policyRef</span></p>
+                }
+            </div>
+        }
+
+        @if (premium != null)
+        {
+            <div class="policy-card mb-3">
+                <div class="policy-card-head">تفصيل القسط</div>
+                <div class="policy-card-body">
+                    <div class="d-flex justify-content-between"><span>صافي القسط</span><strong>@premium.NetPremium.ToString("N3")</strong></div>
+                    <div class="d-flex justify-content-between"><span>الضريبة</span><strong>@premium.Tax.ToString("N3")</strong></div>
+                    <div class="d-flex justify-content-between"><span>رسوم الإشراف</span><strong>@premium.SupervisionFees.ToString("N3")</strong></div>
+                    <div class="d-flex justify-content-between"><span>الدمغة</span><strong>@premium.Stamp.ToString("N3")</strong></div>
+                    <div class="d-flex justify-content-between"><span>رسوم الإصدار</span><strong>@premium.IssuingFees.ToString("N3")</strong></div>
+                    <hr />
+                    <div class="d-flex justify-content-between"><span>الإجمالي</span><strong class="text-success">@premium.TotalPremium.ToString("N3")</strong></div>
+                    @if (premium.ToNoonOf.HasValue)
+                    {
+                        <p class="text-muted small mt-2 mb-0">نهاية التغطية: @premium.ToNoonOf.Value.ToString("yyyy-MM-dd")</p>
+                    }
+                    @if (!isError && string.IsNullOrEmpty(policyRef))
+                    {
+                        <p class="text-muted small mt-3 mb-0">هذه معاينة فقط. إصدار الوثيقة من هذه الصفحة غير متاح لأن المفتاح الحالي في وضع الاختبار.</p>
+                    }
+                </div>
+            </div>
+        }
+        else if (demo)
+        {
+            <div class="policy-card mb-3">
+                <div class="policy-card-head">ملخص البيانات المدخلة</div>
+                <div class="policy-card-body">
+                    <p class="text-muted mb-2">تم استلام النموذج بنجاح في الواجهة التجريبية.</p>
+                    <p class="mb-0"><strong>القسط (تجريبي):</strong> <span class="text-success">يُحسب لاحقاً عبر الـ API</span></p>
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(pdfUrl))
+        {
+            <p><a class="btn btn-outline-primary" href="@pdfUrl" target="_blank" rel="noopener">ملف الوثيقة</a></p>
+        }
+
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-policy-preview" asp-action="@backAction">تعديل البيانات</a>
+            <a class="btn btn-outline-secondary" asp-controller="Apply" asp-action="Index">اختيار نوع آخر</a>
+            <a class="btn btn-outline-secondary" asp-controller="Home" asp-action="Index">الرئيسية</a>
+        </div>
+    </div>
+</div>
+<link rel="stylesheet" href="~/css/policy.css" asp-append-version="true" />

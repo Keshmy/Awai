@@ -1,0 +1,244 @@
+@model ApplyVM
+@{
+    ViewData["Title"] = "تقديم طلب تأمين";
+    var site = ViewBag.Site as SiteInfo;
+    var waDigits = new string((site?.WhatsAppNumber ?? site?.Phone ?? "218940001097").Where(char.IsDigit).ToArray());
+    if (waDigits.StartsWith("0"))
+        waDigits = "218" + waDigits.TrimStart('0');
+    var waDisplay = waDigits.StartsWith("218") && waDigits.Length >= 12
+        ? $"+{waDigits[..3]} {waDigits[3..5]}-{waDigits[5..]}"
+        : (string.IsNullOrWhiteSpace(site?.Phone) ? "+218 94-0001097" : site!.Phone);
+}
+<div class="container py-5" style="max-width:760px">
+    <h1 class="section-title">تقديم طلب تأمين</h1>
+
+    <div class="alert alert-info border-0 shadow-sm mb-4">
+        اختر نوع التأمين: <strong>مسافرين / برتقالية / سيارة إجباري</strong> تفتح النموذج الجديد، وباقي الأنواع تستخدم النموذج الحالي مع رفع المستندات.
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="ProductId" class="form-label"></label>
+        <select asp-for="ProductId" asp-items="ViewBag.Products" class="form-select" id="productSelect">
+            <option value="">— اختر النوع —</option>
+        </select>
+        <div id="agencyHint" class="alert alert-primary border-0 mt-3 mb-0" hidden>
+            سيتم فتح نموذج الوثيقة الجديد لهذا النوع…
+        </div>
+    </div>
+
+    <div id="legacyApplyBlock">
+    <div class="alert alert-warning border-0 shadow-sm mb-4">
+        <h5 class="alert-heading"><i class="bi bi-exclamation-triangle-fill"></i> مهم قبل الإرسال</h5>
+        <ol class="mb-2 pe-3">
+            <li>أرفق <strong>صورة المستند / فاتورة السداد</strong> (البضاعة أو الفاتورة) لتحديد السعر يدوياً من قبل الشركة.</li>
+            <li>صورة الهوية <strong>اختيارية</strong>. يمكنك إرفاق مستند إضافي إن وُجد.</li>
+            <li>بعد الإرسال يمكنك متابعتنا على واتساب إن احتجت.</li>
+        </ol>
+        <a class="btn btn-success" href="https://wa.me/@waDigits" target="_blank" rel="noopener">
+            <i class="bi bi-whatsapp"></i> واتساب:
+            <span dir="ltr" style="unicode-bidi:isolate; display:inline-block;">@waDisplay</span>
+        </a>
+    </div>
+
+    <form id="applyForm" asp-action="Index" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <input type="hidden" asp-for="ProductId" id="productIdHidden" />
+        <div class="mb-3">
+            <label asp-for="FullName" class="form-label"></label>
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="NationalId" class="form-label"></label>
+                <input asp-for="NationalId" class="form-control" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="DateOfBirth" class="form-label"></label>
+                <input asp-for="DateOfBirth" class="form-control" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="Phone" class="form-label"></label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Address" class="form-label"></label>
+            <input asp-for="Address" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Notes" class="form-label"></label>
+            <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="mb-3 file-pick-field">
+            <label asp-for="IdDocument" class="form-label"></label>
+            <input asp-for="IdDocument" class="form-control file-pick-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif" data-images-only="true" />
+            <div class="file-pick-status mt-1" aria-live="polite"></div>
+            <div class="form-text">اختياري — صورة فقط.</div>
+            <span asp-validation-for="IdDocument" class="text-danger"></span>
+        </div>
+        <div class="mb-3 file-pick-field">
+            <label asp-for="MainDocument" class="form-label"></label>
+            <input asp-for="MainDocument" class="form-control file-pick-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif" data-images-only="true" />
+            <div class="file-pick-status mt-1" aria-live="polite"></div>
+            <div class="form-text">مطلوب — صورة فاتورة السداد / البضاعة لتحديد السعر يدوياً.</div>
+            <span asp-validation-for="MainDocument" class="text-danger"></span>
+        </div>
+        <div class="mb-3 file-pick-field">
+            <label asp-for="ExtraDocument" class="form-label"></label>
+            <input asp-for="ExtraDocument" class="form-control file-pick-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif" data-images-only="true" />
+            <div class="file-pick-status mt-1" aria-live="polite"></div>
+            <div class="form-text">اختياري — صورة فقط.</div>
+            <span asp-validation-for="ExtraDocument" class="text-danger"></span>
+        </div>
+        <button id="applySubmitBtn" class="btn btn-gold w-100" type="submit">إرسال الطلب</button>
+    </form>
+    </div>
+</div>
+
+<div id="applyUploadOverlay" class="apply-upload-overlay" hidden>
+    <div class="apply-upload-card">
+        <div class="spinner-border text-warning" role="status" aria-hidden="true"></div>
+        <p class="mb-0 mt-3 fw-semibold">جاري رفع الملفات وإرسال الطلب...</p>
+        <p class="small text-muted mb-0 mt-1">يرجى الانتظار، لا تغلق الصفحة</p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <style>
+        .apply-upload-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0, 31, 63, .55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .apply-upload-overlay[hidden] { display: none !important; }
+        .apply-upload-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.75rem 2rem;
+            text-align: center;
+            min-width: min(320px, 92vw);
+            box-shadow: 0 12px 40px rgba(0,0,0,.2);
+        }
+        .file-pick-status {
+            min-height: 1.5rem;
+            font-size: .9rem;
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+        }
+        .file-pick-status .spinner-border { width: 1rem; height: 1rem; border-width: .15em; }
+        .file-pick-status.is-ok { color: #198754; }
+        .file-pick-status.is-err { color: #dc3545; }
+        .file-pick-status.is-busy { color: #6c757d; }
+    </style>
+    <script>
+        const policyRoutes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.PolicyRoutes as Dictionary<string, string> ?? new Dictionary<string, string>()));
+        const select = document.getElementById('productSelect');
+        const legacy = document.getElementById('legacyApplyBlock');
+        const agencyHint = document.getElementById('agencyHint');
+        const hiddenProduct = document.getElementById('productIdHidden');
+
+        function syncProductChoice() {
+            const id = select.value;
+            if (hiddenProduct) hiddenProduct.value = id || '';
+
+            const action = policyRoutes[id];
+            if (action) {
+                agencyHint.hidden = false;
+                legacy.style.opacity = '0.45';
+                legacy.style.pointerEvents = 'none';
+                window.location.href = '/Policy/' + action;
+                return;
+            }
+
+            agencyHint.hidden = true;
+            legacy.style.opacity = '1';
+            legacy.style.pointerEvents = 'auto';
+            legacy.hidden = false;
+        }
+
+        select.addEventListener('change', syncProductChoice);
+        syncProductChoice();
+
+        const imageExt = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+
+        function extensionOf(name) {
+            const i = name.lastIndexOf('.');
+            return i >= 0 ? name.slice(i).toLowerCase() : '';
+        }
+
+        function setStatus(el, mode, html) {
+            el.className = 'file-pick-status mt-1' + (mode ? ' ' + mode : '');
+            el.innerHTML = html || '';
+        }
+
+        function readFileReady(file) {
+            return new Promise(function (resolve, reject) {
+                const reader = new FileReader();
+                reader.onload = function () { resolve(); };
+                reader.onerror = function () { reject(new Error('read failed')); };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        document.querySelectorAll('.file-pick-input').forEach(function (input) {
+            input.addEventListener('change', async function () {
+                const status = input.closest('.file-pick-field').querySelector('.file-pick-status');
+                const files = Array.from(input.files || []);
+                if (!files.length) {
+                    setStatus(status, '', '');
+                    return;
+                }
+
+                setStatus(status, 'is-busy',
+                    '<span class="spinner-border text-secondary" role="status"></span>' +
+                    '<span>جاري تجهيز الملف...</span>');
+
+                const bad = files.find(function (f) { return !imageExt.includes(extensionOf(f.name)); });
+                if (bad) {
+                    input.value = '';
+                    setStatus(status, 'is-err',
+                        '<i class="bi bi-x-circle-fill"></i><span>صيغة غير مسموحة: ' + bad.name + '</span>');
+                    return;
+                }
+
+                try {
+                    for (const file of files) {
+                        await readFileReady(file);
+                    }
+                    setStatus(status, 'is-ok',
+                        '<i class="bi bi-check-circle-fill"></i><span>تم اختيار: ' + files[0].name + '</span>');
+                } catch (_) {
+                    setStatus(status, 'is-err',
+                        '<i class="bi bi-x-circle-fill"></i><span>تعذر قراءة الملف</span>');
+                }
+            });
+        });
+
+        const form = document.getElementById('applyForm');
+        const overlay = document.getElementById('applyUploadOverlay');
+        const submitBtn = document.getElementById('applySubmitBtn');
+        form.addEventListener('submit', function () {
+            if (window.jQuery && jQuery(form).valid && !jQuery(form).valid()) {
+                return;
+            }
+            overlay.hidden = false;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>جاري الإرسال...';
+        });
+    </script>
+}

@@ -1,0 +1,24 @@
+@model UserProfile
+@{
+    var staff = User.IsInRole("Prog") || User.IsInRole("Admin") || User.IsInRole("Employee");
+    ViewData["Layout"] = staff ? "_LayoutDashboard" : "_Layout";
+    ViewData["Title"] = "الملف الشخصي";
+}
+<h2>الملف الشخصي</h2>
+<p>@ViewBag.Email</p>
+<form asp-action="UserProfile" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="UserId" />
+    <input type="hidden" asp-for="ImageUrl" />
+    <div class="mb-3">
+        <label asp-for="DisplayName" class="form-label"></label>
+        <input asp-for="DisplayName" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">الصورة</label>
+        <input asp-for="Image" class="form-control" type="file" />
+        <input type="hidden" name="isImg1" value="1" />
+    </div>
+    <button class="btn btn-gold" type="submit">حفظ</button>
+    <a class="btn btn-outline-secondary" asp-action="ChangePassword">تغيير كلمة المرور</a>
+</form>

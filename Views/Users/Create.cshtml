@@ -1,0 +1,25 @@
+@model CreateUserVM
+@{
+    ViewData["Title"] = "مستخدم جديد";
+    ViewBag.TeamTab = "users";
+    var roles = ViewBag.AssignableRoles as string[] ?? new[] { "Employee", "Admin" };
+}
+<partial name="Partial/_TeamTabs" />
+<h2>مستخدم جديد</h2>
+<p class="text-muted">لا يمكن منح صلاحية المبرمج من هنا.</p>
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3"><label asp-for="Email"></label><input asp-for="Email" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Password"></label><input asp-for="Password" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Age"></label><input asp-for="Age" class="form-control" /></div>
+    <div class="mb-3">
+        <label asp-for="Role"></label>
+        <select asp-for="Role" class="form-select">
+            @foreach (var r in roles)
+            {
+                <option value="@r">@r</option>
+            }
+        </select>
+    </div>
+    <button class="btn btn-gold" type="submit">حفظ</button>
+</form>

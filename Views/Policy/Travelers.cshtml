@@ -1,0 +1,94 @@
+@model TravelersPolicyVM
+@{
+    ViewData["Title"] = "وثيقة جديدة - تأمين مسافرين";
+}
+<div class="policy-page">
+    <div class="container py-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+                <h1 class="policy-title mb-1">وثيقة جديدة — تأمين مسافرين</h1>
+                <p class="text-muted mb-0 small">واجهة تجريبية للعرض — الربط مع النظام الخارجي لاحقاً</p>
+            </div>
+            <a class="btn btn-outline-secondary btn-sm" asp-controller="Apply" asp-action="Index">رجوع لاختيار النوع</a>
+        </div>
+
+        <div class="alert alert-info border-0 shadow-sm">
+            <i class="bi bi-info-circle"></i>
+            نموذج تأمين المسافرين (واجهة فقط للعرض).
+        </div>
+
+        <form method="post" novalidate>
+            @Html.AntiForgeryToken()
+            <div class="policy-card mb-3">
+                <div class="policy-card-head"><i class="bi bi-person-badge"></i> بيانات المسافر</div>
+                <div class="policy-card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label asp-for="TravelerName" class="form-label"></label>
+                            <input asp-for="TravelerName" class="form-control" />
+                            <span asp-validation-for="TravelerName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="PassportNumber" class="form-label"></label>
+                            <input asp-for="PassportNumber" class="form-control" dir="ltr" />
+                            <span asp-validation-for="PassportNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Phone" class="form-label"></label>
+                            <input asp-for="Phone" class="form-control" dir="ltr" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Nationality" class="form-label"></label>
+                            <select asp-for="Nationality" class="form-select">
+                                <option>ليبي</option>
+                                <option>أجنبي</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Destination" class="form-label"></label>
+                            <input asp-for="Destination" class="form-control" placeholder="مثال: تركيا" />
+                            <span asp-validation-for="Destination" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="TripType" class="form-label"></label>
+                            <select asp-for="TripType" class="form-select">
+                                <option value="single">رحلة واحدة</option>
+                                <option value="multi">متعدد الرحلات</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="policy-card mb-4">
+                <div class="policy-card-head"><i class="bi bi-airplane"></i> مدة الرحلة / التغطية</div>
+                <div class="policy-card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label asp-for="DepartureDate" class="form-label"></label>
+                            <input asp-for="DepartureDate" class="form-control" type="date" />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="ReturnDate" class="form-label"></label>
+                            <input asp-for="ReturnDate" class="form-control" type="date" />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="CoverDays" class="form-label"></label>
+                            <input asp-for="CoverDays" class="form-control" type="number" min="1" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button class="btn btn-policy-preview btn-lg" type="submit" formaction="@Url.Action("PreviewTravel")" formmethod="post">احتساب ومعاينة (Preview)</button>
+                <button class="btn btn-policy-issue btn-lg" type="submit" formaction="@Url.Action("IssueTravel")" formmethod="post">إصدار الوثيقة (Issue)</button>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <link rel="stylesheet" href="~/css/policy.css" asp-append-version="true" />
+}

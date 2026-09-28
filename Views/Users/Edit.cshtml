@@ -1,0 +1,33 @@
+@model EditUserVM
+@{
+    ViewData["Title"] = "تعديل مستخدم";
+    ViewBag.TeamTab = "users";
+}
+<partial name="Partial/_TeamTabs" />
+
+<h2>تعديل مستخدم والصلاحيات</h2>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Age" class="form-label"></label><input asp-for="Age" class="form-control" /></div>
+    <div class="form-check mb-3">
+        <input asp-for="IsApproved" class="form-check-input" />
+        <label asp-for="IsApproved" class="form-check-label">حساب معتمد (يسمح بدخول لوحة التحكم مع صلاحية مناسبة)</label>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">الصلاحيات</label>
+        <div class="border rounded p-3">
+            @foreach (var role in Model.AvailableRoles)
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="SelectedRoles" value="@role"
+                           id="role_@role" @(Model.SelectedRoles.Contains(role) ? "checked" : null) />
+                    <label class="form-check-label" for="role_@role">@role</label>
+                </div>
+            }
+        </div>
+        <small class="text-muted">Admin / Employee يدخلون لوحة التحكم. Pending بانتظار الموافقة. صلاحية Prog غير متاحة هنا.</small>
+    </div>
+    <button class="btn btn-gold" type="submit">حفظ</button>
+    <a class="btn btn-outline-secondary" asp-action="Index">رجوع</a>
+</form>
