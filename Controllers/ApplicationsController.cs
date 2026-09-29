@@ -13,10 +13,17 @@ namespace Awai.Controllers
     public class ApplicationsController : Controller
     {
         private readonly IUnitOfWork<InsuranceApplication> _apps;
+        private readonly IUnitOfWork<ApplicationDocument> _documents;
+        private readonly IWebHostEnvironment _host;
 
-        public ApplicationsController(IUnitOfWork<InsuranceApplication> apps)
+        public ApplicationsController(
+            IUnitOfWork<InsuranceApplication> apps,
+            IUnitOfWork<ApplicationDocument> documents,
+            IWebHostEnvironment host)
         {
             _apps = apps;
+            _documents = documents;
+            _host = host;
         }
 
         public async Task<IActionResult> Index(string? status)
@@ -42,6 +49,23 @@ namespace Awai.Controllers
             }
 
             return View(all);
+        }
+
+        public async Task<IActionResult> Document(Guid id)
+        {
+            var document = await _documents.Repository.GetWhere(d => d.Id == id).FirstOrDefaultAsync();
+            if (document == null)
+                return NotFound();
+
+            var path = BaseController.ResolveApplicationFile(_host, document.FileUrl);
+            if (path == null)
+                return NotFound();
+
+            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(path, out var contentType))
+                contentType = "application/octet-stream";
+
+            return PhysicalFile(path, contentType);
         }
 
         public async Task<IActionResult> Details(Guid id)

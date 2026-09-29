@@ -116,11 +116,11 @@
                             <div class="small text-muted mb-2">@d.OriginalFileName</div>
                             @if (isImage)
                             {
-                                <a href="/upload/@d.FileUrl" target="_blank">
-                                    <img src="/upload/@d.FileUrl" alt="@d.OriginalFileName" class="img-fluid rounded mb-2" style="max-height:160px;object-fit:cover;width:100%" />
+                                <a asp-action="Document" asp-route-id="@d.Id" target="_blank">
+                                    <img src="@Url.Action("Document", new { id = d.Id })" alt="@d.OriginalFileName" class="img-fluid rounded mb-2" style="max-height:160px;object-fit:cover;width:100%" />
                                 </a>
                             }
-                            <a class="btn btn-sm btn-outline-secondary" href="/upload/@d.FileUrl" target="_blank">فتح / تحميل</a>
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Document" asp-route-id="@d.Id" target="_blank">فتح / تحميل</a>
                         </div>
                     </div>
                 }

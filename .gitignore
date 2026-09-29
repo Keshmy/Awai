@@ -6,3 +6,4 @@ obj/
 *.suo
 AwaiLog.pdf
 wwwroot/upload/
+App_Data/

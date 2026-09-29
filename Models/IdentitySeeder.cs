@@ -21,9 +21,9 @@ namespace Awai.Models
             }
 
             var progEmail = config["SeedProg:Email"] ?? "programmer@awai.ly";
-            var progPassword = config["SeedProg:Password"] ?? "Prog@123456";
+            var progPassword = config["SeedProg:Password"];
             var adminEmail = config["SeedAdmin:Email"] ?? "admin@awai.ly";
-            var adminPassword = config["SeedAdmin:Password"] ?? "Admin@123456";
+            var adminPassword = config["SeedAdmin:Password"];
 
             var programmer = await EnsureUserAsync(userManager, db, progEmail, progPassword, "المبرمج", ["Prog"]);
             await EnsureUserAsync(userManager, db, adminEmail, adminPassword, "مدير النظام", ["Admin"]);
@@ -44,13 +44,16 @@ namespace Awai.Models
             UserManager<ApplicationUser> userManager,
             AppDbContext db,
             string email,
-            string password,
+            string? password,
             string displayName,
             string[] roles)
         {
             var user = await userManager.FindByEmailAsync(email);
             if (user == null)
             {
+                if (string.IsNullOrWhiteSpace(password))
+                    return null!;
+
                 user = new ApplicationUser
                 {
                     UserName = email,

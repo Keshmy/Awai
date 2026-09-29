@@ -41,12 +41,45 @@ namespace Awai.Controllers
 
         public string? SaveApplicationFile(IFormFile file)
         {
-            string folderPath = Path.Combine(_host.WebRootPath, "upload", "applications");
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            string[] allowed = [".jpeg", ".jpg", ".png", ".gif", ".webp", ".bmp", ".pdf"];
+            if (!allowed.Contains(extension))
+                extension = ".bin";
+
+            var folderPath = Path.Combine(_host.ContentRootPath, "App_Data", "applications");
             Directory.CreateDirectory(folderPath);
-            string fileName = Guid.NewGuid() + "_" + Path.GetFileName(file.FileName);
+            var fileName = Guid.NewGuid().ToString("N") + extension;
             using (var stream = new FileStream(Path.Combine(folderPath, fileName), FileMode.Create))
                 file.CopyTo(stream);
-            return Path.Combine("applications", fileName).Replace("\\", "/");
+            return fileName;
+        }
+
+        public static string? ResolveApplicationFile(IWebHostEnvironment host, string? stored)
+        {
+            if (string.IsNullOrWhiteSpace(stored) || stored.Contains("..") || Path.IsPathRooted(stored))
+                return null;
+
+            var fileName = Path.GetFileName(stored.Replace('\\', '/'));
+            if (string.IsNullOrWhiteSpace(fileName))
+                return null;
+
+            string[] roots =
+            [
+                Path.Combine(host.ContentRootPath, "App_Data", "applications"),
+                Path.Combine(host.WebRootPath, "upload", "applications")
+            ];
+
+            foreach (var root in roots)
+            {
+                var rootFull = Path.GetFullPath(root) + Path.DirectorySeparatorChar;
+                var full = Path.GetFullPath(Path.Combine(root, fileName));
+                if (!full.StartsWith(rootFull, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (System.IO.File.Exists(full))
+                    return full;
+            }
+
+            return null;
         }
 
         public void DeleteOldFile(string? fileUrl)

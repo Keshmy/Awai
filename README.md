@@ -34,17 +34,19 @@ dotnet run
 
 The site listens on `http://localhost:5101`. The database is `AwaiDb` on the local SQL Server, from `ConnectionStrings:DbCon` in `appsettings.json`. Migrations run on startup.
 
-Staff seed accounts are in `appsettings.json` under `SeedProg` and `SeedAdmin`.
-
-## IMS key
-
-The compulsory-motor API key is not in this repository. Store it in user secrets:
+Staff emails are in `appsettings.json`. Passwords are not. On this machine store them with user secrets:
 
 ```bash
+dotnet user-secrets set "SeedProg:Password" "<password>"
+dotnet user-secrets set "SeedAdmin:Password" "<password>"
 dotnet user-secrets set "Ims:ApiKey" "<key>"
 ```
 
-The IMS base address is `Ims:BaseUrl` in `appsettings.json`.
+On the production server, set the same values as environment variables: `SeedProg__Password`, `SeedAdmin__Password`, and `Ims__ApiKey`. Do not put them in a file that is committed.
+
+## IMS key
+
+The compulsory-motor API key is read from configuration (`Ims:ApiKey`). Locally that value comes from user secrets. In production it comes from the `Ims__ApiKey` environment variable. The key is sent in a header, not in the page address. The IMS base address is `Ims:BaseUrl` in `appsettings.json`.
 
 ## Payment flow
 
