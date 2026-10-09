@@ -1,0 +1,47 @@
+@model Awai.ViewModels.PolicySupportVM
+@{
+    ViewData["Title"] = "استرجاع وثيقة";
+}
+<div class="container py-5" style="max-width:720px">
+    <h1 class="mb-2">فقدت وثيقتك؟</h1>
+    <p class="text-muted mb-4">أدخل بياناتك وسنتواصل معك عبر واتساب أو البريد لإعادة إرسال رابط الوثيقة.</p>
+
+    <form asp-action="RecoverPolicy" method="post" class="card border-0 shadow-sm">
+        @Html.AntiForgeryToken()
+        <div class="card-body p-4">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Phone" class="form-label"></label>
+                <input asp-for="Phone" class="form-control" dir="ltr" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" dir="ltr" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="PolicyNumber" class="form-label"></label>
+                <input asp-for="PolicyNumber" class="form-control" dir="ltr" placeholder="LISA-...." />
+            </div>
+            <div class="mb-3">
+                <label asp-for="NationalId" class="form-label"></label>
+                <input asp-for="NationalId" class="form-control" dir="ltr" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="PlateNumber" class="form-label"></label>
+                <input asp-for="PlateNumber" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Message" class="form-label"></label>
+                <textarea asp-for="Message" class="form-control" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-gold">إرسال طلب الاسترجاع</button>
+        </div>
+    </form>
+</div>

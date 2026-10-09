@@ -1,3 +1,4 @@
+using Awai.Helpers;
 using Awai.Models;
 using Awai.Models.Entities;
 using Awai.Models.Interfaces;
@@ -16,6 +17,7 @@ namespace Awai.Controllers
         private readonly IUnitOfWork<SiteInfo> _site;
         private readonly IUnitOfWork<PageContent> _pages;
         private readonly IUnitOfWork<ContactMessage> _messages;
+        private readonly AppDbContext _db;
 
         public HomeController(
             IUnitOfWork<Product> products,
@@ -23,7 +25,8 @@ namespace Awai.Controllers
             IUnitOfWork<SitePhoto> photos,
             IUnitOfWork<SiteInfo> site,
             IUnitOfWork<PageContent> pages,
-            IUnitOfWork<ContactMessage> messages)
+            IUnitOfWork<ContactMessage> messages,
+            AppDbContext db)
         {
             _products = products;
             _posts = posts;
@@ -31,6 +34,7 @@ namespace Awai.Controllers
             _site = site;
             _pages = pages;
             _messages = messages;
+            _db = db;
         }
 
         public async Task<IActionResult> Index()
@@ -129,6 +133,71 @@ namespace Awai.Controllers
             await _messages.SaveAsync();
             TempData["SuccessMessage"] = "تم إرسال رسالتك وسنتواصل معك قريباً";
             return RedirectToAction(nameof(Contact));
+        }
+
+        [HttpGet]
+        public IActionResult RecoverPolicy()
+        {
+            ViewData["Title"] = "استرجاع وثيقة";
+            return View(new PolicySupportVM());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RecoverPolicy(PolicySupportVM model)
+        {
+            ViewData["Title"] = "استرجاع وثيقة";
+            if (!ModelState.IsValid)
+                return View(model);
+
+            IssuedPolicy? match = null;
+            var policyNo = model.PolicyNumber?.Trim();
+            var nationalId = model.NationalId?.Trim();
+            var plate = model.PlateNumber?.Trim();
+            var phoneDigits = IssuedPolicyLinks.DigitsOnly(model.Phone);
+
+            if (!string.IsNullOrWhiteSpace(policyNo))
+            {
+                match = await _db.IssuedPolicies.AsNoTracking()
+                    .Where(p => p.TransactionCode == policyNo || p.PolicyNumber == policyNo)
+                    .OrderByDescending(p => p.Created)
+                    .FirstOrDefaultAsync();
+            }
+
+            if (match == null && !string.IsNullOrWhiteSpace(nationalId))
+            {
+                match = await _db.IssuedPolicies.AsNoTracking()
+                    .Where(p => p.NationalId == nationalId)
+                    .OrderByDescending(p => p.Created)
+                    .FirstOrDefaultAsync();
+            }
+
+            if (match == null && !string.IsNullOrWhiteSpace(plate) && !string.IsNullOrEmpty(phoneDigits))
+            {
+                var phoneTail = phoneDigits.Length >= 9 ? phoneDigits.Substring(phoneDigits.Length - 9) : phoneDigits;
+                match = await _db.IssuedPolicies.AsNoTracking()
+                    .Where(p => p.PlateNumber == plate && p.Phone != null && p.Phone.Contains(phoneTail))
+                    .OrderByDescending(p => p.Created)
+                    .FirstOrDefaultAsync();
+            }
+
+            _db.PolicySupportRequests.Add(new PolicySupportRequest
+            {
+                Name = model.Name.Trim(),
+                Phone = phoneDigits,
+                Email = string.IsNullOrWhiteSpace(model.Email) ? null : model.Email.Trim(),
+                PolicyNumber = policyNo,
+                NationalId = nationalId,
+                PlateNumber = plate,
+                Message = string.IsNullOrWhiteSpace(model.Message) ? "طلب استرجاع وثيقة" : model.Message.Trim(),
+                MatchedIssuedPolicyId = match?.Id
+            });
+            await _db.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = match != null
+                ? "تم استلام طلبك وعثرنا على وثيقة مطابقة. سيتواصل معك فريق الدعم قريباً."
+                : "تم استلام طلبك. سيتواصل معك فريق الدعم بعد التحقق من البيانات.";
+            return RedirectToAction(nameof(RecoverPolicy));
         }
 
         public IActionResult Error()

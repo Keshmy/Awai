@@ -1,0 +1,84 @@
+@model Awai.Models.Entities.PolicySupportRequest
+@{
+    ViewData["Title"] = "طلب استرجاع وثيقة";
+    var match = ViewBag.MatchedPolicy as Awai.Models.Entities.IssuedPolicy;
+    var viewUrl = ViewBag.ViewPolicyUrl as string;
+    var wa = ViewBag.WhatsAppUrl as string;
+    var mail = ViewBag.MailtoUrl as string;
+    var emailConfigured = ViewBag.EmailConfigured as bool? == true;
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">طلب استرجاع وثيقة</h2>
+    <a class="btn btn-outline-secondary" asp-action="Index">رجوع</a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header fw-bold">بيانات الطلب</div>
+    <div class="card-body">
+        <div class="row g-2">
+            <div class="col-md-6"><strong>الاسم:</strong> @Model.Name</div>
+            <div class="col-md-6"><strong>الهاتف:</strong> <span dir="ltr">@Model.Phone</span></div>
+            <div class="col-md-6"><strong>البريد:</strong> @(Model.Email ?? "—")</div>
+            <div class="col-md-6"><strong>رقم الوثيقة:</strong> <span dir="ltr">@(Model.PolicyNumber ?? "—")</span></div>
+            <div class="col-md-6"><strong>الرقم الوطني:</strong> <span dir="ltr">@(Model.NationalId ?? "—")</span></div>
+            <div class="col-md-6"><strong>اللوحة:</strong> <span dir="ltr">@(Model.PlateNumber ?? "—")</span></div>
+            <div class="col-12"><strong>ملاحظات:</strong> @Model.Message</div>
+            <div class="col-md-6"><strong>الحالة:</strong> @(Model.IsHandled ? "منجز" : "مفتوح")</div>
+        </div>
+    </div>
+</div>
+
+@if (match != null)
+{
+    <div class="card mb-3 border-success">
+        <div class="card-header fw-bold text-success">وثيقة مطابقة</div>
+        <div class="card-body">
+            <p class="mb-2"><strong>@match.InsuredName</strong> — <span dir="ltr">@(match.TransactionCode ?? match.PolicyNumber)</span></p>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-outline-primary" asp-controller="IssuedPolicies" asp-action="Details" asp-route-id="@match.Id">فتح الوثيقة</a>
+                @if (!string.IsNullOrWhiteSpace(match.PdfUrl))
+                {
+                    <a class="btn btn-primary" href="@match.PdfUrl" target="_blank" rel="noopener">PDF</a>
+                }
+                @if (!string.IsNullOrWhiteSpace(wa))
+                {
+                    <a class="btn btn-success" href="@wa" target="_blank" rel="noopener">إرسال واتساب</a>
+                }
+                @if (!string.IsNullOrWhiteSpace(mail))
+                {
+                    <a class="btn btn-outline-secondary" href="@mail">فتح برنامج البريد</a>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.Email) && emailConfigured)
+                {
+                    <form asp-action="SendEmail" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button class="btn btn-primary" type="submit">إرسال من بريد الشركة</button>
+                    </form>
+                }
+                @if (!string.IsNullOrWhiteSpace(viewUrl))
+                {
+                    <a class="btn btn-outline-primary" href="@viewUrl" target="_blank" rel="noopener">رابط الزبون</a>
+                }
+            </div>
+            @if (!emailConfigured)
+            {
+                <p class="small text-danger mt-2 mb-0">SMTP غير مضبوط. عيّن Smtp:UserName و Smtp:Password.</p>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">لم تُعثر على وثيقة مطابقة تلقائياً. ابحث يدوياً من صفحة الوثائق الصادرة.</div>
+    <a class="btn btn-gold mb-3" asp-controller="IssuedPolicies" asp-action="Index" asp-route-q="@Model.Phone">بحث بالهاتف</a>
+}
+
+@if (!Model.IsHandled)
+{
+    <form asp-action="MarkHandled" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button class="btn btn-outline-success" type="submit">تعليم كمُنجز بعد الإرسال</button>
+    </form>
+}

@@ -56,7 +56,7 @@ namespace Awai.Migrations
 
                     b.HasIndex("InsuranceApplicationId");
 
-                    b.ToTable("ApplicationDocuments", (string)null);
+                    b.ToTable("ApplicationDocuments");
                 });
 
             modelBuilder.Entity("Awai.Models.Entities.ApplicationUser", b =>
@@ -173,7 +173,7 @@ namespace Awai.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactMessages", (string)null);
+                    b.ToTable("ContactMessages");
                 });
 
             modelBuilder.Entity("Awai.Models.Entities.Employee", b =>
@@ -215,7 +215,7 @@ namespace Awai.Migrations
                         .IsUnique()
                         .HasFilter("[UserId] IS NOT NULL");
 
-                    b.ToTable("Employees", (string)null);
+                    b.ToTable("Employees");
                 });
 
             modelBuilder.Entity("Awai.Models.Entities.InsuranceApplication", b =>
@@ -274,7 +274,74 @@ namespace Awai.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("InsuranceApplications", (string)null);
+                    b.ToTable("InsuranceApplications");
+                });
+
+            modelBuilder.Entity("Awai.Models.Entities.IssuedPolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<string>("AccessToken")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InsuredName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("Modified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NationalId")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("PdfUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("PlateNumber")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("PolicyNumber")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("ProductKind")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<decimal?>("TotalPremium")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<string>("TransactionCode")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccessToken")
+                        .IsUnique();
+
+                    b.HasIndex("PolicyNumber");
+
+                    b.ToTable("IssuedPolicies");
                 });
 
             modelBuilder.Entity("Awai.Models.Entities.PageContent", b =>
@@ -309,7 +376,7 @@ namespace Awai.Migrations
                     b.HasIndex("Key")
                         .IsUnique();
 
-                    b.ToTable("PageContents", (string)null);
+                    b.ToTable("PageContents");
 
                     b.HasData(
                         new
@@ -386,7 +453,64 @@ namespace Awai.Migrations
 
                     b.HasIndex("Status", "ProcessingStartedUtc");
 
-                    b.ToTable("PaymentIntents", (string)null);
+                    b.ToTable("PaymentIntents");
+                });
+
+            modelBuilder.Entity("Awai.Models.Entities.PolicySupportRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<bool>("IsHandled")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("MatchedIssuedPolicyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("Modified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("NationalId")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("PlateNumber")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("PolicyNumber")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsHandled", "Created");
+
+                    b.ToTable("PolicySupportRequests");
                 });
 
             modelBuilder.Entity("Awai.Models.Entities.Post", b =>
@@ -422,7 +546,7 @@ namespace Awai.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Posts", (string)null);
+                    b.ToTable("Posts");
 
                     b.HasData(
                         new
@@ -483,7 +607,7 @@ namespace Awai.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
 
                     b.HasData(
                         new
@@ -651,7 +775,7 @@ namespace Awai.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SiteInfo", (string)null);
+                    b.ToTable("SiteInfo");
 
                     b.HasData(
                         new
@@ -701,7 +825,7 @@ namespace Awai.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SitePhotos", (string)null);
+                    b.ToTable("SitePhotos");
                 });
 
             modelBuilder.Entity("Awai.Models.Entities.StaffNotification", b =>
@@ -746,7 +870,7 @@ namespace Awai.Migrations
 
                     b.HasIndex("IsDismissed", "Created");
 
-                    b.ToTable("StaffNotifications", (string)null);
+                    b.ToTable("StaffNotifications");
                 });
 
             modelBuilder.Entity("Awai.Models.Entities.UserProfile", b =>
@@ -778,7 +902,7 @@ namespace Awai.Migrations
                         .IsUnique()
                         .HasFilter("[UserId] IS NOT NULL");
 
-                    b.ToTable("UserProfiles", (string)null);
+                    b.ToTable("UserProfiles");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

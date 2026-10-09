@@ -1,0 +1,54 @@
+@model IEnumerable<Awai.Models.Entities.PolicySupportRequest>
+@{
+    ViewData["Title"] = "طلبات استرجاع الوثائق";
+    var status = ViewBag.Status as string;
+}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <h2 class="mb-0">طلبات استرجاع الوثائق</h2>
+    <div class="btn-group">
+        <a class="btn btn-sm @(string.IsNullOrEmpty(status) ? "btn-gold" : "btn-outline-secondary")" asp-action="Index">الكل</a>
+        <a class="btn btn-sm @(status == "open" ? "btn-gold" : "btn-outline-secondary")" asp-action="Index" asp-route-status="open">مفتوحة</a>
+        <a class="btn btn-sm @(status == "done" ? "btn-gold" : "btn-outline-secondary")" asp-action="Index" asp-route-status="done">منجزة</a>
+    </div>
+</div>
+
+<table class="table align-middle">
+    <thead>
+        <tr>
+            <th>التاريخ</th>
+            <th>الاسم</th>
+            <th>الهاتف</th>
+            <th>البريد</th>
+            <th>رقم الوثيقة</th>
+            <th>الحالة</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var r in Model)
+    {
+        <tr>
+            <td>@r.CreatedDateLocalTime</td>
+            <td>@r.Name</td>
+            <td dir="ltr"><a href="tel:@r.Phone">@r.Phone</a></td>
+            <td>@(r.Email ?? "—")</td>
+            <td dir="ltr">@(r.PolicyNumber ?? "—")</td>
+            <td>
+                @if (r.IsHandled)
+                {
+                    <span class="badge text-bg-success">منجز</span>
+                }
+                else
+                {
+                    <span class="badge text-bg-warning">مفتوح</span>
+                }
+            </td>
+            <td><a asp-action="Details" asp-route-id="@r.Id">متابعة</a></td>
+        </tr>
+    }
+    </tbody>
+</table>
+@if (!Model.Any())
+{
+    <p class="text-muted">لا توجد طلبات.</p>
+}

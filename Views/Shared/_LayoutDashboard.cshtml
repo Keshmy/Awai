@@ -32,6 +32,8 @@
             <nav class="side-nav">
                 <a asp-controller="Admin" asp-action="Index"><i class="bi bi-speedometer2"></i> الرئيسية</a>
                 <a asp-controller="Applications" asp-action="Index"><i class="bi bi-file-earmark-text"></i> طلبات التأمين</a>
+                <a asp-controller="IssuedPolicies" asp-action="Index"><i class="bi bi-file-earmark-check"></i> الوثائق الصادرة</a>
+                <a asp-controller="PolicySupport" asp-action="Index"><i class="bi bi-life-preserver"></i> استرجاع وثيقة</a>
                 <a asp-controller="Reports" asp-action="Index"><i class="bi bi-bar-chart"></i> التقارير</a>
                 <a asp-controller="Messages" asp-action="Index"><i class="bi bi-envelope"></i> رسائل التواصل</a>
                 @if (User.IsInRole("Prog") || User.IsInRole("Admin"))

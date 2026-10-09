@@ -21,7 +21,11 @@
                 <div class="col-md-6 mb-3"><label asp-for="Site.Phone" class="form-label"></label><input asp-for="Site.Phone" class="form-control" /></div>
                 <div class="col-md-6 mb-3"><label asp-for="Site.Phone2" class="form-label"></label><input asp-for="Site.Phone2" class="form-control" /></div>
                 <div class="col-md-6 mb-3"><label asp-for="Site.WhatsAppNumber" class="form-label"></label><input asp-for="Site.WhatsAppNumber" class="form-control" placeholder="218940001097" /></div>
-                <div class="col-md-6 mb-3"><label asp-for="Site.Email" class="form-label"></label><input asp-for="Site.Email" class="form-control" /></div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Site.Email" class="form-label">بريد الشركة (الظهور والإرسال)</label>
+                    <input asp-for="Site.Email" class="form-control" dir="ltr" placeholder="awain2026@gmail.com" />
+                    <div class="form-text">كلمة مرور SMTP لا تُحفظ هنا. تُضبط في أسرار الخادم (`Smtp:Password`).</div>
+                </div>
                 <div class="col-12 mb-3"><label asp-for="Site.Address" class="form-label"></label><input asp-for="Site.Address" class="form-control" /></div>
                 <div class="col-12 mb-3"><label asp-for="Site.MapUrl" class="form-label"></label><input asp-for="Site.MapUrl" class="form-control" /></div>
                 <div class="col-12 mb-3"><label asp-for="Site.MapEmbedUrl" class="form-label"></label><input asp-for="Site.MapEmbedUrl" class="form-control" /></div>

@@ -1,41 +1,62 @@
 @model OrangeCardPolicyVM
+@using Awai.Services.Ims
 @{
     ViewData["Title"] = "وثيقة جديدة - بطاقة عربية موحدة (برتقالية)";
+    var connected = ViewBag.LifoConnected as bool? == true;
+    var cars = ViewBag.LifoCars as IEnumerable<LifoNamedItem> ?? Enumerable.Empty<LifoNamedItem>();
+    var clauses = ViewBag.LifoClauses as IEnumerable<LifoClauseItem> ?? Enumerable.Empty<LifoClauseItem>();
+    var countries = ViewBag.LifoCountries as IEnumerable<LifoNamedItem> ?? Enumerable.Empty<LifoNamedItem>();
+    var nationalities = ViewBag.LifoNationalities as IEnumerable<LifoNamedItem> ?? Enumerable.Empty<LifoNamedItem>();
+    var imsError = ViewBag.ImsError as string;
+    var endDate = Model.StartDate.AddDays(Model.CoverDays);
 }
 <div class="policy-page">
     <div class="container py-4">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
             <div>
-                <h1 class="policy-title mb-1">وثيقة جديدة — بطاقة عربية موحدة (برتقالية)</h1>
-                <p class="text-muted mb-0 small">واجهة تجريبية للعرض — الربط مع النظام الخارجي لاحقاً</p>
+                <h1 class="policy-title mb-1">وثيقة جديدة — بطاقة التأمين الموحدة</h1>
+                <p class="text-muted mb-0 small">@(connected ? "متصل بنظام LIFO (بطاقة عربية موحدة)" : "وضع العرض المحلي — مفتاح LIFO غير موجود")</p>
             </div>
             <a class="btn btn-outline-secondary btn-sm" asp-controller="Apply" asp-action="Index">رجوع لاختيار النوع</a>
         </div>
 
-        <div class="alert alert-info border-0 shadow-sm">
-            <i class="bi bi-info-circle"></i>
-            نموذج البطاقة البرتقالية (واجهة فقط للعرض).
-        </div>
+        @if (!string.IsNullOrWhiteSpace(imsError))
+        {
+            <div class="alert alert-danger border-0 shadow-sm">@imsError</div>
+        }
+        else if (connected)
+        {
+            <div class="alert alert-info border-0 shadow-sm">
+                <i class="bi bi-info-circle"></i>
+                القوائم تُجلب من IMS. <strong>إصدار الوثيقة</strong> ينشئ بطاقة حقيقية في وضع Production.
+            </div>
+        }
 
-        <form method="post" novalidate>
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 shadow-sm"></div>
+        }
+
+        <form method="post" novalidate id="orangeForm">
             @Html.AntiForgeryToken()
+
             <div class="policy-card mb-3">
                 <div class="policy-card-head"><i class="bi bi-person-vcard"></i> المؤمن له</div>
                 <div class="policy-card-body">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label asp-for="InsuredName" class="form-label"></label>
-                            <input asp-for="InsuredName" class="form-control" />
+                            <input asp-for="InsuredName" class="form-control" placeholder="أدخل اسم المؤمن بالكامل" />
                             <span asp-validation-for="InsuredName" class="text-danger small"></span>
                         </div>
                         <div class="col-md-4">
-                            <label asp-for="NationalId" class="form-label"></label>
-                            <input asp-for="NationalId" class="form-control" />
-                            <span asp-validation-for="NationalId" class="text-danger small"></span>
+                            <label asp-for="Address" class="form-label"></label>
+                            <input asp-for="Address" class="form-control" placeholder="أدخل العنوان التفصيلي" />
+                            <span asp-validation-for="Address" class="text-danger small"></span>
                         </div>
                         <div class="col-md-4">
                             <label asp-for="Phone" class="form-label"></label>
-                            <input asp-for="Phone" class="form-control" dir="ltr" />
+                            <input asp-for="Phone" class="form-control" placeholder="0912345678" dir="ltr" />
                             <span asp-validation-for="Phone" class="text-danger small"></span>
                         </div>
                     </div>
@@ -43,59 +64,100 @@
             </div>
 
             <div class="policy-card mb-3">
-                <div class="policy-card-head"><i class="bi bi-card-heading"></i> بيانات المركبة / البطاقة</div>
+                <div class="policy-card-head"><i class="bi bi-car-front"></i> بيانات المركبة</div>
                 <div class="policy-card-body">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label asp-for="PlateNumber" class="form-label"></label>
-                            <input asp-for="PlateNumber" class="form-control" />
+                            <input asp-for="PlateNumber" class="form-control" required />
                             <span asp-validation-for="PlateNumber" class="text-danger small"></span>
                         </div>
                         <div class="col-md-4">
                             <label asp-for="ChassisNumber" class="form-label"></label>
-                            <input asp-for="ChassisNumber" class="form-control" dir="ltr" />
+                            <input asp-for="ChassisNumber" class="form-control" dir="ltr" placeholder="حروف وأرقام فقط" required />
                             <span asp-validation-for="ChassisNumber" class="text-danger small"></span>
                         </div>
                         <div class="col-md-4">
-                            <label asp-for="Make" class="form-label"></label>
-                            <input asp-for="Make" class="form-control" placeholder="مثال: تويوتا" />
-                            <span asp-validation-for="Make" class="text-danger small"></span>
+                            <label asp-for="MotorNumber" class="form-label"></label>
+                            <input asp-for="MotorNumber" class="form-control" dir="ltr" placeholder="رقم المحرك" required />
+                            <span asp-validation-for="MotorNumber" class="text-danger small"></span>
                         </div>
                         <div class="col-md-4">
                             <label asp-for="ManufactureYear" class="form-label"></label>
-                            <input asp-for="ManufactureYear" class="form-control" />
+                            <input asp-for="ManufactureYear" class="form-control" type="number" min="1900" max="2050" required />
                             <span asp-validation-for="ManufactureYear" class="text-danger small"></span>
                         </div>
                         <div class="col-md-4">
-                            <label asp-for="Country" class="form-label"></label>
-                            <input asp-for="Country" class="form-control" />
+                            <label asp-for="CarsId" class="form-label"></label>
+                            <select asp-for="CarsId" class="form-select">
+                                <option value="">— اختر —</option>
+                                @foreach (var c in cars)
+                                {
+                                    <option value="@c.Id">@c.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CarsId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="VehicleNationalityId" class="form-label"></label>
+                            <select asp-for="VehicleNationalityId" class="form-select">
+                                @foreach (var n in nationalities)
+                                {
+                                    <option value="@n.Id">@n.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="VehicleNationalityId" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="policy-card mb-4">
-                <div class="policy-card-head"><i class="bi bi-calendar3"></i> مدة التغطية</div>
+                <div class="policy-card-head"><i class="bi bi-calendar3"></i> مدة التأمين وتفاصيله</div>
                 <div class="policy-card-body">
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <label asp-for="StartDate" class="form-label"></label>
-                            <input asp-for="StartDate" class="form-control" type="date" />
+                            <input asp-for="StartDate" class="form-control" type="date" id="orangeStart" />
                         </div>
-                        <div class="col-md-6">
-                            <label asp-for="CoverDuration" class="form-label"></label>
-                            <select asp-for="CoverDuration" class="form-select">
-                                <option value="annual">سنوي</option>
-                                <option value="six">ستة أشهر</option>
+                        <div class="col-md-3">
+                            <label asp-for="CoverDays" class="form-label"></label>
+                            <input asp-for="CoverDays" class="form-control" type="number" min="1" max="366" id="orangeDays" />
+                            <span asp-validation-for="CoverDays" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">إلى يوم</label>
+                            <input class="form-control" id="orangeEnd" value="@endDate.ToString("yyyy-MM-dd")" readonly />
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="ClauseId" class="form-label"></label>
+                            <select asp-for="ClauseId" class="form-select">
+                                <option value="">— اختر —</option>
+                                @foreach (var c in clauses)
+                                {
+                                    <option value="@c.Id">@c.Slug</option>
+                                }
                             </select>
+                            <span asp-validation-for="ClauseId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="CountryId" class="form-label"></label>
+                            <select asp-for="CountryId" class="form-select">
+                                <option value="">— اختر —</option>
+                                @foreach (var c in countries)
+                                {
+                                    <option value="@c.Id">@c.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CountryId" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="d-grid gap-2">
-                <button class="btn btn-policy-preview btn-lg" type="submit" formaction="@Url.Action("PreviewOrange")" formmethod="post">احتساب ومعاينة (Preview)</button>
-                <button class="btn btn-policy-issue btn-lg" type="submit" formaction="@Url.Action("IssueOrange")" formmethod="post">إصدار الوثيقة (Issue)</button>
+                <button class="btn btn-policy-preview btn-lg" type="submit" formaction="@Url.Action("PreviewOrange")" formmethod="post">معاينة البيانات</button>
+                <button class="btn btn-policy-issue btn-lg" type="submit" formaction="@Url.Action("IssueOrange")" formmethod="post">إصدار الوثيقة</button>
             </div>
         </form>
     </div>
@@ -103,4 +165,19 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <link rel="stylesheet" href="~/css/policy.css" asp-append-version="true" />
+    <script>
+        (function () {
+            const start = document.getElementById('orangeStart');
+            const days = document.getElementById('orangeDays');
+            const end = document.getElementById('orangeEnd');
+            function refresh() {
+                if (!start.value || !days.value) return;
+                const d = new Date(start.value + 'T12:00:00');
+                d.setDate(d.getDate() + parseInt(days.value || '0', 10));
+                end.value = d.toISOString().slice(0, 10);
+            }
+            start?.addEventListener('change', refresh);
+            days?.addEventListener('input', refresh);
+        })();
+    </script>
 }

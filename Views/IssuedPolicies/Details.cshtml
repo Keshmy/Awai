@@ -1,0 +1,70 @@
+@model Awai.Models.Entities.IssuedPolicy
+@{
+    ViewData["Title"] = "تفاصيل الوثيقة";
+    var viewUrl = ViewBag.ViewPolicyUrl as string;
+    var wa = ViewBag.WhatsAppUrl as string;
+    var mail = ViewBag.MailtoUrl as string;
+    var sendEmail = ViewBag.SendEmail as string;
+    var emailConfigured = ViewBag.EmailConfigured as bool? == true;
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">تفاصيل الوثيقة</h2>
+    <a class="btn btn-outline-secondary" asp-action="Index">رجوع</a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row g-2">
+            <div class="col-md-6"><strong>المؤمن له:</strong> @Model.InsuredName</div>
+            <div class="col-md-6"><strong>رقم المعاملة:</strong> <span dir="ltr">@(Model.TransactionCode ?? Model.PolicyNumber)</span></div>
+            <div class="col-md-6"><strong>الهاتف:</strong> <span dir="ltr">@Model.Phone</span></div>
+            <div class="col-md-6"><strong>اللوحة:</strong> <span dir="ltr">@(Model.PlateNumber ?? "—")</span></div>
+            <div class="col-md-6"><strong>الرقم الوطني:</strong> <span dir="ltr">@(Model.NationalId ?? "—")</span></div>
+            <div class="col-md-6"><strong>القسط:</strong> @(Model.TotalPremium?.ToString("N3") ?? "—")</div>
+            <div class="col-md-6"><strong>التاريخ:</strong> @Model.CreatedDateLocalTime</div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header fw-bold">إرسال الوثيقة للزبون</div>
+    <div class="card-body">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            @if (!string.IsNullOrWhiteSpace(Model.PdfUrl))
+            {
+                <a class="btn btn-primary" href="@Model.PdfUrl" target="_blank" rel="noopener">ملف PDF</a>
+            }
+            @if (!string.IsNullOrWhiteSpace(viewUrl))
+            {
+                <a class="btn btn-outline-primary" href="@viewUrl" target="_blank" rel="noopener">رابط الموقع</a>
+            }
+            @if (!string.IsNullOrWhiteSpace(wa))
+            {
+                <a class="btn btn-success" href="@wa" target="_blank" rel="noopener">إرسال واتساب</a>
+            }
+            @if (!string.IsNullOrWhiteSpace(mail))
+            {
+                <a class="btn btn-outline-secondary" href="@mail">فتح برنامج البريد</a>
+            }
+        </div>
+        <form asp-action="SendEmail" method="post" class="row g-2 align-items-end" style="max-width:560px">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <div class="col-md-8">
+                <label class="form-label">بريد الزبون</label>
+                <input class="form-control" type="email" name="email" value="@sendEmail" placeholder="customer@example.com" required />
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-primary w-100" type="submit" @(emailConfigured ? null : "disabled")>إرسال من بريد الشركة</button>
+            </div>
+        </form>
+        @if (!emailConfigured)
+        {
+            <p class="small text-danger mt-2 mb-0">SMTP غير مضبوط بعد. عيّن Smtp:UserName و Smtp:Password في أسرار الخادم.</p>
+        }
+        else
+        {
+            <p class="small text-muted mt-2 mb-0">يتم الإرسال من بريد الشركة عبر Gmail. واتساب يفتح محادثة مع رقم الزبون.</p>
+        }
+    </div>
+</div>

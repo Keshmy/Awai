@@ -4,6 +4,7 @@ using Awai.Models;
 using Awai.Models.Entities;
 using Awai.Models.Interfaces;
 using Awai.Services;
+using Awai.Services.Email;
 using Awai.Services.Ims;
 using Awai.Services.Payments;
 using StackExchange.Redis;
@@ -13,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddMemoryCache();
 builder.Services.AddSignalR();
 builder.Services.AddAntiforgery(options =>
 {
@@ -23,6 +25,8 @@ builder.Services.AddScoped(typeof(IUnitOfWork<>), typeof(Awai.Models.UnitOfWork.
 builder.Services.AddScoped<IApplicationSubmissionService, LocalApplicationSubmissionService>();
 builder.Services.AddScoped<IStaffNotificationService, StaffNotificationService>();
 builder.Services.Configure<ImsOptions>(builder.Configuration.GetSection("Ims"));
+builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddSingleton<IAppEmailSender, SmtpEmailSender>();
 builder.Services.AddSingleton<ImsTokenCache>();
 builder.Services.AddHttpClient<ImsApiClient>(client =>
 {

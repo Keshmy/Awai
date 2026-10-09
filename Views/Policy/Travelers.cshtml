@@ -1,24 +1,51 @@
 @model TravelersPolicyVM
+@using Awai.Services.Ims
 @{
     ViewData["Title"] = "وثيقة جديدة - تأمين مسافرين";
+    var connected = ViewBag.TravelConnected as bool? == true;
+    var periods = ViewBag.TravelPeriods as IEnumerable<TravelNamedItem> ?? Enumerable.Empty<TravelNamedItem>();
+    var genders = ViewBag.TravelGenders as IEnumerable<TravelNamedItem> ?? Enumerable.Empty<TravelNamedItem>();
+    var nationalities = ViewBag.TravelNationalities as IEnumerable<TravelNamedItem> ?? Enumerable.Empty<TravelNamedItem>();
+    var coverTypes = ViewBag.TravelCoverTypes as IEnumerable<TravelNamedItem> ?? Enumerable.Empty<TravelNamedItem>();
+    var areas = ViewBag.TravelAreas as IEnumerable<TravelNamedItem> ?? Enumerable.Empty<TravelNamedItem>();
+    var imsError = ViewBag.ImsError as string;
+    var periodsEmpty = connected && !periods.Any();
 }
 <div class="policy-page">
     <div class="container py-4">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
             <div>
                 <h1 class="policy-title mb-1">وثيقة جديدة — تأمين مسافرين</h1>
-                <p class="text-muted mb-0 small">واجهة تجريبية للعرض — الربط مع النظام الخارجي لاحقاً</p>
+                <p class="text-muted mb-0 small">@(connected ? "متصل بنظام Travel في IMS" : "وضع العرض المحلي — مفتاح Travel غير موجود")</p>
             </div>
             <a class="btn btn-outline-secondary btn-sm" asp-controller="Apply" asp-action="Index">رجوع لاختيار النوع</a>
         </div>
 
-        <div class="alert alert-info border-0 shadow-sm">
-            <i class="bi bi-info-circle"></i>
-            نموذج تأمين المسافرين (واجهة فقط للعرض).
-        </div>
+        @if (!string.IsNullOrWhiteSpace(imsError))
+        {
+            <div class="alert alert-danger border-0 shadow-sm">@imsError</div>
+        }
+        else if (connected)
+        {
+            <div class="alert alert-info border-0 shadow-sm">
+                <i class="bi bi-info-circle"></i>
+                اختر <strong>حزمة التغطية</strong> كما في أسعار IMS (مثل All Schengen). حقل الدولة متجاهل مؤقتاً حسب اتفاق IMS.
+                غيّر <strong>عدد الأيام</strong> أو التواريخ حسب الحاجة.
+                @if (periodsEmpty)
+                {
+                    <span class="d-block mt-1 text-warning">نظام IMS لا رجّع قائمة المدد بعد. احتساب القسط والإصدار يتوقف حتى يضيفوا المدد في لوحة IMS.</span>
+                }
+            </div>
+        }
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 shadow-sm"></div>
+        }
 
         <form method="post" novalidate>
             @Html.AntiForgeryToken()
+
             <div class="policy-card mb-3">
                 <div class="policy-card-head"><i class="bi bi-person-badge"></i> بيانات المسافر</div>
                 <div class="policy-card-body">
@@ -29,61 +56,107 @@
                             <span asp-validation-for="TravelerName" class="text-danger small"></span>
                         </div>
                         <div class="col-md-4">
+                            <label asp-for="Address" class="form-label"></label>
+                            <input asp-for="Address" class="form-control" />
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Phone" class="form-label"></label>
+                            <input asp-for="Phone" class="form-control" dir="ltr" placeholder="0912345678" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
                             <label asp-for="PassportNumber" class="form-label"></label>
                             <input asp-for="PassportNumber" class="form-control" dir="ltr" />
                             <span asp-validation-for="PassportNumber" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="Phone" class="form-label"></label>
-                            <input asp-for="Phone" class="form-control" dir="ltr" />
-                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        <div class="col-md-3">
+                            <label asp-for="DateOfBirth" class="form-label"></label>
+                            <input asp-for="DateOfBirth" class="form-control" type="date" />
+                            <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="Nationality" class="form-label"></label>
-                            <select asp-for="Nationality" class="form-select">
-                                <option>ليبي</option>
-                                <option>أجنبي</option>
+                        <div class="col-md-3">
+                            <label asp-for="GenderId" class="form-label"></label>
+                            <select asp-for="GenderId" class="form-select">
+                                <option value="">— اختر —</option>
+                                @foreach (var g in genders)
+                                {
+                                    <option value="@g.Id">@g.DisplayName</option>
+                                }
                             </select>
+                            <span asp-validation-for="GenderId" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="Destination" class="form-label"></label>
-                            <input asp-for="Destination" class="form-control" placeholder="مثال: تركيا" />
-                            <span asp-validation-for="Destination" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="TripType" class="form-label"></label>
-                            <select asp-for="TripType" class="form-select">
-                                <option value="single">رحلة واحدة</option>
-                                <option value="multi">متعدد الرحلات</option>
+                        <div class="col-md-3">
+                            <label asp-for="NationalityId" class="form-label"></label>
+                            <select asp-for="NationalityId" class="form-select">
+                                @foreach (var n in nationalities)
+                                {
+                                    <option value="@n.Id">@n.DisplayName</option>
+                                }
                             </select>
+                            <span asp-validation-for="NationalityId" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="policy-card mb-4">
-                <div class="policy-card-head"><i class="bi bi-airplane"></i> مدة الرحلة / التغطية</div>
+                <div class="policy-card-head"><i class="bi bi-airplane"></i> التغطية والوجهة</div>
                 <div class="policy-card-body">
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label asp-for="DepartureDate" class="form-label"></label>
-                            <input asp-for="DepartureDate" class="form-control" type="date" />
+                            <label asp-for="ClauseId" class="form-label"></label>
+                            <select asp-for="ClauseId" class="form-select">
+                                <option value="">— اختر —</option>
+                                @foreach (var c in coverTypes)
+                                {
+                                    <option value="@c.Id">@c.DisplayName</option>
+                                }
+                            </select>
+                            <span asp-validation-for="ClauseId" class="text-danger small"></span>
                         </div>
                         <div class="col-md-4">
-                            <label asp-for="ReturnDate" class="form-label"></label>
-                            <input asp-for="ReturnDate" class="form-control" type="date" />
+                            <label asp-for="CountryId" class="form-label"></label>
+                            <select asp-for="CountryId" class="form-select">
+                                <option value="">— اختر —</option>
+                                @foreach (var a in areas)
+                                {
+                                    <option value="@a.Id">@a.DisplayName</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CountryId" class="text-danger small"></span>
+                            <div class="form-text">تُرسل كـ countryId و destinationId (حزمة التغطية).</div>
                         </div>
                         <div class="col-md-4">
                             <label asp-for="CoverDays" class="form-label"></label>
-                            <input asp-for="CoverDays" class="form-control" type="number" min="1" />
+                            <input asp-for="CoverDays" class="form-control" type="number" min="1" max="366" id="travelDays" />
+                            <span asp-validation-for="CoverDays" class="text-danger small"></span>
                         </div>
+                        <div class="col-md-4">
+                            <label asp-for="InsuranceFrom" class="form-label"></label>
+                            <input asp-for="InsuranceFrom" class="form-control" type="date" id="travelFrom" />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="InsuranceTo" class="form-label"></label>
+                            <input asp-for="InsuranceTo" class="form-control" type="date" id="travelTo" />
+                            <span asp-validation-for="InsuranceTo" class="text-danger small"></span>
+                        </div>
+                        <input type="hidden" asp-for="PeriodId" id="travelPeriodId" />
+                        @if (periods.Any())
+                        {
+                            <div class="col-12">
+                                <p class="small text-muted mb-0">المدد المعرفة في IMS:
+                                    @string.Join("، ", periods.Where(p => p.DaysCount is > 0).Select(p => $"{p.DaysCount} يوم"))
+                                </p>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
 
             <div class="d-grid gap-2">
-                <button class="btn btn-policy-preview btn-lg" type="submit" formaction="@Url.Action("PreviewTravel")" formmethod="post">احتساب ومعاينة (Preview)</button>
-                <button class="btn btn-policy-issue btn-lg" type="submit" formaction="@Url.Action("IssueTravel")" formmethod="post">إصدار الوثيقة (Issue)</button>
+                <button class="btn btn-policy-preview btn-lg" type="submit" formaction="@Url.Action("PreviewTravel")" formmethod="post">احتساب ومعاينة</button>
+                <button class="btn btn-policy-issue btn-lg" type="submit" formaction="@Url.Action("IssueTravel")" formmethod="post">إصدار الوثيقة</button>
             </div>
         </form>
     </div>
@@ -91,4 +164,68 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <link rel="stylesheet" href="~/css/policy.css" asp-append-version="true" />
+    <script>
+        (function () {
+            const days = document.getElementById('travelDays');
+            const from = document.getElementById('travelFrom');
+            const to = document.getElementById('travelTo');
+            const periodId = document.getElementById('travelPeriodId');
+            const periodMap = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                periods.Where(p => p.DaysCount is > 0).ToDictionary(p => p.DaysCount!.Value.ToString(), p => p.Id)));
+            let syncing = false;
+
+            function ymd(d) {
+                return d.toISOString().slice(0, 10);
+            }
+
+            function parseYmd(value) {
+                if (!value) return null;
+                const d = new Date(value + 'T12:00:00');
+                return Number.isNaN(d.getTime()) ? null : d;
+            }
+
+            function setPeriodFromDays() {
+                if (!periodId) return;
+                periodId.value = periodMap[String(parseInt(days?.value || '0', 10))] ?? '';
+            }
+
+            function fromDays() {
+                if (syncing) return;
+                const start = parseYmd(from?.value);
+                const n = parseInt(days?.value || '0', 10);
+                if (!start || n < 1) return;
+                syncing = true;
+                const end = new Date(start);
+                end.setDate(end.getDate() + n);
+                to.value = ymd(end);
+                setPeriodFromDays();
+                syncing = false;
+            }
+
+            function fromEndDate() {
+                if (syncing) return;
+                const start = parseYmd(from?.value);
+                const end = parseYmd(to?.value);
+                if (!start || !end) return;
+                const diff = Math.round((end - start) / 86400000);
+                if (diff < 1) {
+                    syncing = true;
+                    to.value = ymd(new Date(start.getTime() + 86400000));
+                    days.value = '1';
+                    setPeriodFromDays();
+                    syncing = false;
+                    return;
+                }
+                syncing = true;
+                days.value = String(diff);
+                setPeriodFromDays();
+                syncing = false;
+            }
+
+            days?.addEventListener('input', fromDays);
+            from?.addEventListener('change', fromDays);
+            to?.addEventListener('change', fromEndDate);
+            setPeriodFromDays();
+        })();
+    </script>
 }

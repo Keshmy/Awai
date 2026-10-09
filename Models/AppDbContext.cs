@@ -22,6 +22,8 @@ namespace Awai.Models
         public DbSet<ApplicationDocument> ApplicationDocuments { get; set; }
         public DbSet<StaffNotification> StaffNotifications { get; set; }
         public DbSet<PaymentIntent> PaymentIntents { get; set; }
+        public DbSet<IssuedPolicy> IssuedPolicies { get; set; }
+        public DbSet<PolicySupportRequest> PolicySupportRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,7 +34,7 @@ namespace Awai.Models
                 typeof(SiteInfo), typeof(UserProfile), typeof(Employee), typeof(PageContent),
                 typeof(Product), typeof(Post), typeof(SitePhoto), typeof(ContactMessage),
                 typeof(InsuranceApplication), typeof(ApplicationDocument), typeof(StaffNotification),
-                typeof(PaymentIntent)
+                typeof(PaymentIntent), typeof(IssuedPolicy), typeof(PolicySupportRequest)
             })
             {
                 modelBuilder.Entity(entity).Property("Id").HasDefaultValueSql("NEWID()");
@@ -89,6 +91,20 @@ namespace Awai.Models
 
             modelBuilder.Entity<PaymentIntent>()
                 .HasIndex(p => new { p.Status, p.ProcessingStartedUtc });
+
+            modelBuilder.Entity<IssuedPolicy>()
+                .Property(p => p.TotalPremium)
+                .HasPrecision(18, 3);
+
+            modelBuilder.Entity<IssuedPolicy>()
+                .HasIndex(p => p.AccessToken)
+                .IsUnique();
+
+            modelBuilder.Entity<IssuedPolicy>()
+                .HasIndex(p => p.PolicyNumber);
+
+            modelBuilder.Entity<PolicySupportRequest>()
+                .HasIndex(r => new { r.IsHandled, r.Created });
 
             modelBuilder.Seed();
         }

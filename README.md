@@ -40,9 +40,12 @@ Staff emails are in `appsettings.json`. Passwords are not. On this machine store
 dotnet user-secrets set "SeedProg:Password" "<password>"
 dotnet user-secrets set "SeedAdmin:Password" "<password>"
 dotnet user-secrets set "Ims:ApiKey" "<key>"
+dotnet user-secrets set "Smtp:UserName" "awain2026@gmail.com"
+dotnet user-secrets set "Smtp:From" "awain2026@gmail.com"
+dotnet user-secrets set "Smtp:Password" "<gmail-app-password>"
 ```
 
-On the production server, set the same values as environment variables: `SeedProg__Password`, `SeedAdmin__Password`, and `Ims__ApiKey`. Do not put them in a file that is committed.
+On the production server, set the same values as environment variables: `SeedProg__Password`, `SeedAdmin__Password`, `Ims__ApiKey`, `Smtp__UserName`, `Smtp__Password`, and `Smtp__From`. Do not put them in a file that is committed. Gmail often needs an App Password, not the normal login password.
 
 ## IMS key
 

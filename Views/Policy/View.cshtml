@@ -1,0 +1,74 @@
+@model Awai.Models.Entities.IssuedPolicy
+@{
+    ViewData["Title"] = "وثيقتك";
+    var pdfUrl = ViewBag.PdfUrl as string ?? Model.PdfUrl;
+    var viewPolicyUrl = ViewBag.ViewPolicyUrl as string;
+    var waShare = ViewBag.WhatsAppShareUrl as string;
+    var waCompany = ViewBag.WhatsAppCompanyUrl as string;
+    var policyRef = Model.TransactionCode ?? Model.PolicyNumber;
+}
+<div class="policy-page">
+    <div class="container py-4" style="max-width:820px">
+        <div class="alert alert-success border-0 shadow-sm">
+            <h4 class="alert-heading mb-1">وثيقتك</h4>
+            <p class="mb-0">يمكنك فتح ملف الوثيقة وطباعته في أي وقت من هذا الرابط.</p>
+            @if (!string.IsNullOrEmpty(policyRef))
+            {
+                <p class="mt-2 mb-0"><strong>رقم المعاملة:</strong> <span dir="ltr">@policyRef</span></p>
+            }
+        </div>
+
+        <div class="policy-card mb-3">
+            <div class="policy-card-head">بيانات الوثيقة</div>
+            <div class="policy-card-body">
+                <div class="d-flex justify-content-between mb-2"><span>المؤمن له</span><strong>@Model.InsuredName</strong></div>
+                @if (!string.IsNullOrWhiteSpace(Model.PlateNumber))
+                {
+                    <div class="d-flex justify-content-between mb-2"><span>اللوحة</span><strong dir="ltr">@Model.PlateNumber</strong></div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                {
+                    <div class="d-flex justify-content-between mb-2"><span>الهاتف</span><strong dir="ltr">@Model.Phone</strong></div>
+                }
+                @if (Model.TotalPremium.HasValue)
+                {
+                    <div class="d-flex justify-content-between"><span>القسط</span><strong class="text-success">@Model.TotalPremium.Value.ToString("N3")</strong></div>
+                }
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            @if (!string.IsNullOrWhiteSpace(pdfUrl))
+            {
+                <a class="btn btn-policy-issue btn-lg" href="@pdfUrl" target="_blank" rel="noopener">ملف الوثيقة / طباعة</a>
+            }
+            else if ((string.Equals(Model.ProductKind, "OrangeCard", StringComparison.OrdinalIgnoreCase)
+                      || string.Equals(Model.ProductKind, "Travelers", StringComparison.OrdinalIgnoreCase))
+                     && !string.IsNullOrWhiteSpace(Model.PolicyNumber))
+            {
+                <a class="btn btn-policy-issue btn-lg" asp-action="Pdf" asp-route-id="@Model.Id" asp-route-t="@Model.AccessToken" target="_blank" rel="noopener">ملف الوثيقة / طباعة</a>
+            }
+            else
+            {
+                <p class="text-muted mb-0">ملف PDF غير متوفر لهذه الوثيقة بعد.</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(waShare))
+            {
+                <a class="btn btn-success btn-lg" href="@waShare" target="_blank" rel="noopener">إرسال إلى رقم الزبون على واتساب</a>
+            }
+            @if (!string.IsNullOrWhiteSpace(waCompany))
+            {
+                <a class="btn btn-outline-success btn-lg" href="@waCompany" target="_blank" rel="noopener">إرسال إلى واتساب الشركة</a>
+            }
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(viewPolicyUrl))
+        {
+            <p class="small text-muted mb-1">رابط هذه الصفحة:</p>
+            <p class="small mb-3" dir="ltr" style="word-break:break-all">@viewPolicyUrl</p>
+        }
+
+        <a class="btn btn-outline-secondary" asp-controller="Home" asp-action="Index">الرئيسية</a>
+    </div>
+</div>
+<link rel="stylesheet" href="~/css/policy.css" asp-append-version="true" />
